@@ -199,6 +199,9 @@
   #ghpanel label:first-of-type{margin-top:2px}
   #ghpanel label > span{width:56px}
   .ghrow{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+  #log{border:1px solid var(--rule);background:#FFFDF3;padding:10px 12px;margin:0 0 12px;
+    font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;line-height:1.6;color:#3A3226}
+  #log b{display:block;font-family:inherit;margin-bottom:4px;font-size:11px;letter-spacing:.06em}
   #errbar{position:fixed;top:0;left:0;right:0;z-index:99;background:#A3281C;color:#fff;
     font-size:12.5px;padding:8px 12px;line-height:1.4}
   #gate{position:fixed;inset:0;background:rgba(20,24,31,.55);display:flex;align-items:center;
@@ -248,8 +251,19 @@
 </head>
 <body>
 <div id="errbar" hidden></div>
+<div id="log" hidden><b>Diagnostics</b><div id="logbody"></div></div>
 <script>
-window.__BUILD__ = "b14 · 2026-07-15 21:02 UTC";
+window.__BUILD__ = "b15 · 21:11:33 UTC";
+window.__LOG__ = function(m){
+  try{
+    var w = document.getElementById('log'), b = document.getElementById('logbody');
+    if(!w||!b) return;
+    w.hidden = false;
+    var t = new Date().toLocaleTimeString('en-US');
+    b.insertAdjacentHTML('beforeend', '<div>' + t + '  ' + String(m) + '</div>');
+  }catch(e){}
+};
+window.__LOG__('build b15 · 21:11:33 UTC');
 window.addEventListener('error', function(e){
   var b = document.getElementById('errbar');
   if (!b) return;
@@ -275,7 +289,7 @@ window.addEventListener('unhandledrejection', function(e){
     <button class="act" id="gate-go">Continue</button>
     <p class="gatemsg" id="gate-msg"></p>
     <p class="gatefoot" id="gate-where"></p>
-    <p class="gatefoot">Build b14 · 2026-07-15 21:02 UTC</p>
+    <p class="gatefoot">Build b15 · 21:11:33 UTC</p>
   </div>
 </div>
 
@@ -333,7 +347,7 @@ window.addEventListener('unhandledrejection', function(e){
 <script id="saved-state" type="application/json">null</script>
 
 <footer>
-  Build b14 · 2026-07-15 21:02 UTC · <a href="#" id="resetauth">Sign out of this device</a> ·
+  Build b15 · 21:11:33 UTC · <a href="#" id="resetauth">Sign out of this device</a> ·
   Sources: 25 TAC §157.11 (current through Reg. 50 No. 26, Jun 27 2025) and Houston Health Department EMS Program, "Minimum Equipment for Ambulances," Ver 9.16.25. Reference column: Hatzalah of Houston Medical Protocols §9.03, Lars Thestrup MD, eff. 12/20/2024. Working aid, not a legal opinion — the controlling documents are the rule, the current HHD sheet, and your medical director's signed equipment list. State §157.11(c)(7)(R) also points to an equipment checklist on the DSHS provider application, which is not reflected here.
 </footer>
 
@@ -910,6 +924,8 @@ const gate = document.getElementById('gate');
 
 function openGate(){
   const t = target();
+  if(window.__LOG__)window.__LOG__('gate opened. host=' + location.hostname + ' path=' + location.pathname +
+      ' -> owner=' + (t.owner||'?') + ' repo=' + (t.repo||'?'));
   document.getElementById('gate-msg').textContent = '';
   document.getElementById('gate-where').textContent = t.owner && t.repo
     ? `Publishes to ${t.owner}/${t.repo}`
@@ -923,15 +939,18 @@ function gateSubmit(){
   try {
     const token = document.getElementById('gate-token').value.trim();
     msg.textContent = 'Working…';
+    if(window.__LOG__)window.__LOG__('Continue pressed. token length=' + token.length);
     const t = target();
     if (!token){ msg.textContent = 'Paste the GitHub token.'; return; }
     if (!t.owner || !t.repo){ msg.textContent = 'Open this page from your GitHub Pages address.'; return; }
     const kept = ghStore({owner:t.owner, repo:t.repo, branch:t.branch, token});
+    if(window.__LOG__)window.__LOG__('signed in. storage kept = ' + kept);
     gate.hidden = true;
     say(kept ? 'Signed in on this device.'
              : 'Signed in for now. This browser blocks storage, so you will be asked again next visit.');
   } catch(err){
     msg.textContent = 'Sign-in failed: ' + ((err && err.message) || err);
+    if(window.__LOG__)window.__LOG__('SIGN-IN ERROR: ' + ((err && err.message) || err));
   }
 }
 
@@ -977,15 +996,20 @@ const say = t => { document.getElementById('savestate').textContent = t; };
 
 document.getElementById('publish').addEventListener('click', async ()=>{
   say('Publishing…');
+  if(window.__LOG__)window.__LOG__('Publish pressed.');
   const g = await ensureToken();
-  if (!g || !g.token || !g.owner || !g.repo){ openGate(); return; }
+  if(window.__LOG__)window.__LOG__('config: owner=' + (g&&g.owner) + ' repo=' + (g&&g.repo) + ' branch=' + (g&&g.branch) +
+      ' token=' + (g&&g.token ? 'present(' + g.token.length + ')' : 'MISSING'));
+  if (!g || !g.token || !g.owner || !g.repo){ if(window.__LOG__)window.__LOG__('no config -> reopening sign-in'); openGate(); return; }
   const btn = document.getElementById('publish');
   btn.disabled = true; btn.textContent = 'Publishing…';
   const url = `https://api.github.com/repos/${g.owner}/${g.repo}/contents/index.html`;
   const hdr = {Authorization:'Bearer '+g.token, Accept:'application/vnd.github+json'};
   try {
     let sha;
+    if(window.__LOG__)window.__LOG__('GET ' + url);
     const cur = await fetch(`${url}?ref=${encodeURIComponent(g.branch||'main')}`, {headers:hdr});
+    if(window.__LOG__)window.__LOG__('GET returned ' + cur.status);
     if (cur.ok) sha = (await cur.json()).sha;
     else if (cur.status !== 404) throw new Error('Could not read the file: ' + cur.status);
 
@@ -998,14 +1022,17 @@ document.getElementById('publish').addEventListener('click', async ()=>{
         ...(sha ? {sha} : {})
       })
     });
+    if(window.__LOG__)window.__LOG__('PUT returned ' + res.status);
     if (!res.ok){
       const j = await res.json().catch(()=>({}));
+      if(window.__LOG__)window.__LOG__('PUT body: ' + JSON.stringify(j).slice(0,300));
       throw new Error((j.message || res.status) + '');
     }
     try { localStorage.removeItem(LSKEY); } catch(e){}
     say('Published. The site updates in about a minute — reload then.');
   } catch(err){
     const m = String(err.message||err);
+    if(window.__LOG__)window.__LOG__('PUBLISH ERROR: ' + m);
     say('Publish failed: ' + m + (/Bad credentials|401/.test(m) ? ' — check the token.' :
         /404|Not Found/.test(m) ? ' — check owner/repo, and that the token can reach this repo.' : ''));
   } finally {
@@ -1092,6 +1119,7 @@ for (const t of ['bls','als','micu'])
   for (const cat of new Set(MODEL.filter(r=>r.tier===t).map(r=>r.cat)))
     collapsed.add(ckey(t, cat));
 
+if(window.__LOG__)window.__LOG__('boot: token on device = ' + (ghLoad().token ? 'yes' : 'no'));
 if (!ghLoad().token) openGate();
 
 render();
