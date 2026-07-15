@@ -199,7 +199,6 @@
   #ghpanel label:first-of-type{margin-top:2px}
   #ghpanel label > span{width:56px}
   .ghrow{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
-  #gh-status{font-size:11.5px;color:var(--muted)}
   #gate{position:fixed;inset:0;background:rgba(20,24,31,.55);display:flex;align-items:center;
     justify-content:center;padding:20px;z-index:50}
   .gatebox{background:#fff;border-radius:4px;padding:22px 22px 18px;max-width:380px;width:100%;
@@ -852,7 +851,6 @@ function buildProtocol(){
 const GHKEY = 'hoh-ambulance-gh-v1';
 
 const ghLoad = () => { try { return JSON.parse(localStorage.getItem(GHKEY)||'null') || {}; } catch(e){ return {}; } };
-const ghEls = () => ({ token: document.getElementById('gh-token') });
 
 // Work out owner/repo from the GitHub Pages URL: owner.github.io/repo/
 function ghGuess(){
@@ -915,22 +913,15 @@ async function ensureToken(){
 }
 
 
-document.getElementById('gh-save').addEventListener('click',()=>{
-  const e = ghEls();
-  localStorage.setItem(GHKEY, JSON.stringify({
-    owner: e.owner.value.trim(), repo: e.repo.value.trim(),
-    branch: (e.branch.value.trim()||'main'), token: e.token.value.trim()
-  }));
-  document.getElementById('gh-status').textContent = 'Saved.';
-});
+
 
 
 function bakedHTML(){
   const doc = document.documentElement.cloneNode(true);
   doc.querySelector('#list').innerHTML = '';
   doc.querySelector('#protocol').innerHTML = '';
-  doc.querySelector('#ghpanel').hidden = true;
-  doc.querySelectorAll('#gh-owner,#gh-repo,#gh-branch,#gh-token').forEach(i=>i.removeAttribute('value'));
+  doc.querySelector('#gate').hidden = true;
+  doc.querySelectorAll('input').forEach(i=>i.removeAttribute('value'));
   doc.querySelector('#saved-state').textContent = JSON.stringify(snapshot());
   return '<!DOCTYPE html>\n' + doc.outerHTML;
 }
