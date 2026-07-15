@@ -248,18 +248,14 @@
 <body>
 <div id="gate" hidden>
   <div class="gatebox">
-    <h2 id="gate-title">Admin sign-in</h2>
-    <p id="gate-sub"></p>
-    <label id="gate-token-row">GitHub token
+    <h2>Admin sign-in</h2>
+    <p id="gate-sub">Paste the GitHub token to use this checklist. This device will remember it — you will not be asked again.</p>
+    <label>GitHub token
       <input id="gate-token" type="password" placeholder="github_pat_..." autocapitalize="off" spellcheck="false">
-    </label>
-    <label>Password
-      <input id="gate-pw" type="password" placeholder="shared admin password" autocapitalize="off" spellcheck="false">
     </label>
     <button class="act" id="gate-go">Continue</button>
     <p class="gatemsg" id="gate-msg"></p>
-    <p class="gatealt"><a href="#" id="gate-usetoken">Forgot it? Use the GitHub token instead</a></p>
-    <p class="gatefoot">This device will be remembered. You will not be asked again.</p>
+    <p class="gatefoot" id="gate-where"></p>
   </div>
 </div>
 
@@ -315,10 +311,9 @@
 <div id="list"></div>
 <div id="protocol" aria-hidden="true"></div>
 <script id="saved-state" type="application/json">null</script>
-<script id="admin-key" type="application/json">null</script>
 
 <footer>
-  <a href="#" id="resetauth">Change token or password</a> ·
+  <a href="#" id="resetauth">Sign out of this device</a> ·
   Sources: 25 TAC §157.11 (current through Reg. 50 No. 26, Jun 27 2025) and Houston Health Department EMS Program, "Minimum Equipment for Ambulances," Ver 9.16.25. Reference column: Hatzalah of Houston Medical Protocols §9.03, Lars Thestrup MD, eff. 12/20/2024. Working aid, not a legal opinion — the controlling documents are the rule, the current HHD sheet, and your medical director's signed equipment list. State §157.11(c)(7)(R) also points to an equipment checklist on the DSHS provider application, which is not reflected here.
 </footer>
 
@@ -855,8 +850,7 @@ function buildProtocol(){
 
 // ---------- publish to GitHub ----------
 const GHKEY = 'hoh-ambulance-gh-v1';
-let ADMIN = null;
-try { ADMIN = JSON.parse(document.getElementById('admin-key').textContent); } catch(e){}
+
 const ghLoad = () => { try { return JSON.parse(localStorage.getItem(GHKEY)||'null') || {}; } catch(e){ return {}; } };
 const ghEls = () => ({ token: document.getElementById('gh-token') });
 
@@ -872,126 +866,45 @@ function ghGuess(){
 }
 
 function target(){
-  const g = ghLoad(), a = ADMIN || {}, guess = ghGuess();
+  const g = ghLoad(), guess = ghGuess();
   return {
-    owner: g.owner || a.owner || guess.owner || '',
-    repo:  g.repo  || a.repo  || guess.repo  || '',
-    branch: g.branch || a.branch || 'main'
+    owner: g.owner || guess.owner || '',
+    repo:  g.repo  || guess.repo  || '',
+    branch: g.branch || 'main'
   };
-}
-
-
-
-const CRYPTO_MSG = 'Passwords need a secure page. Open your https:// GitHub Pages address, not the file on your computer.';
-const secureOK = () => !!(window.crypto && window.crypto.subtle);
-
-const enc = new TextEncoder(), dec = new TextDecoder();
-const bufB64 = b => btoa(String.fromCharCode(...new Uint8Array(b)));
-const b64Buf = x => Uint8Array.from(atob(x), c=>c.charCodeAt(0));
-
-async function keyFrom(pw, salt){
-  const base = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey(
-    {name:'PBKDF2', salt, iterations:250000, hash:'SHA-256'},
-    base, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
-}
-async function lockToken(token, pw){
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const key = await keyFrom(pw, salt);
-  const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, enc.encode(token));
-  return {salt: bufB64(salt), iv: bufB64(iv), ct: bufB64(ct)};
-}
-async function unlockToken(blob, pw){
-  const key = await keyFrom(pw, b64Buf(blob.salt));
-  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:b64Buf(blob.iv)}, key, b64Buf(blob.ct));
-  return dec.decode(pt);
 }
 
 
 
 const gate = document.getElementById('gate');
 
-let forceSetup = false;
-
 function openGate(){
-  const setup = forceSetup || !(ADMIN && ADMIN.ct);
   const t = target();
-  document.getElementById('gate-title').textContent = setup ? 'Set up publishing' : 'Admin sign-in';
-  document.getElementById('gate-sub').textContent = setup
-    ? `First time here. Paste the GitHub token and choose the password your admins will use. Publishes to ${t.owner||'?'}/${t.repo||'?'}.`
-    : `Enter the admin password to use this checklist on this device.`;
-  document.getElementById('gate-token-row').hidden = !setup;
-  document.getElementById('gate-go').textContent = setup ? 'Save and continue' : 'Unlock';
   document.getElementById('gate-msg').textContent = '';
-  document.getElementById('gate-usetoken').parentElement.hidden = setup || !(ADMIN && ADMIN.ct);
-  if (forceSetup)
-    document.getElementById('gate-sub').textContent =
-      'Paste the token and set a new password. This replaces the old one for everybody — press Publish to site straight after.';
-  if (!secureOK()) document.getElementById('gate-msg').textContent = CRYPTO_MSG;
+  document.getElementById('gate-where').textContent = t.owner && t.repo
+    ? `Publishes to ${t.owner}/${t.repo}`
+    : 'Open this from your GitHub Pages address so it knows the repo.';
   gate.hidden = false;
-  setTimeout(()=>document.getElementById(setup ? 'gate-token' : 'gate-pw').focus(), 50);
+  setTimeout(()=>document.getElementById('gate-token').focus(), 50);
 }
 
-async function gateSubmit(){
-  const setup = forceSetup || !(ADMIN && ADMIN.ct);
-  const pw = document.getElementById('gate-pw').value;
+function gateSubmit(){
+  const token = document.getElementById('gate-token').value.trim();
   const msg = document.getElementById('gate-msg');
-  const btn = document.getElementById('gate-go');
   const t = target();
-
-  if (setup){
-    const token = document.getElementById('gate-token').value.trim();
-    if (!token){ msg.textContent = 'Paste the GitHub token.'; return; }
-    if (!t.owner || !t.repo){ msg.textContent = 'Open this page from your GitHub Pages address.'; return; }
-    if (pw.length < 8){ msg.textContent = 'Use a password of at least 8 characters.'; return; }
-    if (!secureOK()){ msg.textContent = CRYPTO_MSG; return; }
-    btn.disabled = true; btn.textContent = 'Saving…';
-    try {
-      const blob = await lockToken(token, pw);
-      ADMIN = {...blob, owner:t.owner, repo:t.repo, branch:t.branch};
-      localStorage.setItem(GHKEY, JSON.stringify({owner:t.owner, repo:t.repo, branch:t.branch, token}));
-      forceSetup = false;
-      gate.hidden = true;
-      say('Set up. Press Publish to site once — that puts the locked token live for your other admins.');
-    } catch(err){
-      msg.textContent = 'Could not save: ' + (err && err.message ? err.message : err);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Save and continue';
-    }
-    return;
-  }
-
-  if (!pw){ msg.textContent = 'Enter the password.'; return; }
-  if (!secureOK()){ msg.textContent = CRYPTO_MSG; return; }
-  btn.disabled = true; btn.textContent = 'Checking…';
-  try {
-    const token = await unlockToken(ADMIN, pw);
-    localStorage.setItem(GHKEY, JSON.stringify({
-      owner:ADMIN.owner, repo:ADMIN.repo, branch:ADMIN.branch||'main', token
-    }));
-    gate.hidden = true;
-    say('Signed in on this device.');
-  } catch(e){
-    msg.textContent = 'Wrong password for the version of the file now on the site.';
-  } finally {
-    btn.disabled = false; btn.textContent = 'Unlock';
-  }
+  if (!token){ msg.textContent = 'Paste the GitHub token.'; return; }
+  if (!t.owner || !t.repo){ msg.textContent = 'Open this page from your GitHub Pages address.'; return; }
+  localStorage.setItem(GHKEY, JSON.stringify({owner:t.owner, repo:t.repo, branch:t.branch, token}));
+  gate.hidden = true;
+  say('Signed in on this device.');
 }
-
-document.getElementById('gate-usetoken').addEventListener('click', e=>{
-  e.preventDefault();
-  forceSetup = true;
-  openGate();
-});
 
 document.getElementById('gate-go').addEventListener('click', gateSubmit);
 gate.addEventListener('keydown', e=>{ if (e.key === 'Enter') gateSubmit(); });
 
 document.getElementById('resetauth').addEventListener('click', e=>{
   e.preventDefault();
-  if (!confirm('Forget the saved sign-in on this device?')) return;
+  if (!confirm('Forget the saved token on this device?')) return;
   try { localStorage.removeItem(GHKEY); } catch(err){}
   openGate();
 });
@@ -1019,7 +932,6 @@ function bakedHTML(){
   doc.querySelector('#ghpanel').hidden = true;
   doc.querySelectorAll('#gh-owner,#gh-repo,#gh-branch,#gh-token').forEach(i=>i.removeAttribute('value'));
   doc.querySelector('#saved-state').textContent = JSON.stringify(snapshot());
-  doc.querySelector('#admin-key').textContent = JSON.stringify(ADMIN);
   return '<!DOCTYPE html>\n' + doc.outerHTML;
 }
 
