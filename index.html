@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ambulance Required Equipment — State + City Minimum</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --state:#1B3A6B; --city:#D2601A; --both:#3B4655;
+    --ink:#14181F; --muted:#5C6672; --rule:#DDE1E6; --bg:#FFF; --panel:#F6F7F9;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Inter","Segoe UI",system-ui,sans-serif;font-size:15px;line-height:1.45}
+  .wrap{max-width:1180px;margin:0 auto;padding:26px 18px 80px}
+  header{border-bottom:3px solid var(--ink);padding-bottom:14px;margin-bottom:16px}
+  h1{font-size:25px;margin:0 0 4px;letter-spacing:-0.02em}
+  .sub{color:var(--muted);font-size:13px;margin:0}
+
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+  .lg{border-left:5px solid;padding:8px 12px;background:var(--panel);font-size:12.5px;
+    flex:1 1 240px;min-width:0}
+  .lg.src-s{border-color:var(--state)} .lg.src-c{border-color:var(--city)} .lg.src-both{border-color:var(--both)}
+  .lg b{display:block;font-size:13px;margin-bottom:2px}
+  .lg span{color:var(--muted);display:block}
+
+  .note-box{background:#F1F5FA;border-left:4px solid var(--state);padding:10px 12px;font-size:12.5px;margin:10px 0}
+
+  .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0 6px;
+    position:sticky;top:0;background:var(--bg);padding:10px 0;border-bottom:1px solid var(--rule);z-index:5}
+  button{font:inherit;cursor:pointer;border-radius:2px}
+  .tab{border:1px solid var(--rule);background:#fff;padding:7px 15px;font-weight:600;font-size:13px}
+  .tab[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .filt{border:1px solid var(--rule);background:#fff;padding:6px 12px;font-size:12px;font-weight:600}
+  .filt[aria-pressed="true"].fs{background:var(--state);color:#fff;border-color:var(--state)}
+  .filt[aria-pressed="true"].fc{background:var(--city);color:#fff;border-color:var(--city)}
+  .filt[aria-pressed="true"].fb{background:var(--both);color:#fff;border-color:var(--both)}
+  .filt[aria-pressed="true"].fa{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .act{border:1px solid var(--ink);background:var(--ink);color:#fff;padding:7px 14px;font-size:12.5px;font-weight:600}
+  .act.ghost{background:#fff;color:var(--ink)}
+  input[type=search]{border:1px solid var(--rule);padding:7px 10px;font:inherit;font-size:13px;
+    border-radius:2px;min-width:170px;flex:1}
+  .count{font-size:12px;color:var(--muted);white-space:nowrap}
+  .spacer{flex-basis:100%;height:0}
+
+  h2.tier{font-size:15px;text-transform:uppercase;letter-spacing:.09em;margin:26px 0 2px;
+    padding:8px 12px;background:var(--ink);color:#fff}
+  .tiernote{font-size:12.5px;color:var(--muted);margin:6px 0 12px}
+  h3.cat{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+    margin:18px 0 4px;border-bottom:1px solid var(--rule);padding:6px 4px 5px;
+    display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;border-radius:2px}
+  h3.cat:hover{background:var(--panel);color:var(--ink)}
+  h3.cat:focus-visible{outline:2px solid var(--state);outline-offset:1px}
+  .chev{width:0;height:0;border-left:5px solid currentColor;border-top:4px solid transparent;
+    border-bottom:4px solid transparent;transform:rotate(90deg);transition:transform .12s;flex:none}
+  h3.cat.shut .chev{transform:rotate(0deg)}
+  h3.cat.shut{border-bottom-color:var(--border,#DDE1E6)}
+  .catname{flex:1}
+  .catcount{font-size:10px;font-weight:800;letter-spacing:.04em;color:var(--muted);
+    background:var(--panel);border-radius:2px;padding:2px 6px}
+  h3.cat:hover .catcount{background:#fff}
+
+  table{width:100%;border-collapse:collapse}
+  thead th{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);
+    text-align:left;padding:4px 8px;border-bottom:1px solid var(--rule);font-weight:700}
+  td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  tr.hide{display:none}
+  td.chk{width:30px}
+  td.chk input{width:17px;height:17px;margin-top:2px;cursor:pointer}
+  td.qty{width:88px;font-weight:700;font-variant-numeric:tabular-nums;font-size:13.5px}
+  td.src{width:52px;white-space:nowrap;padding-top:8px}
+  td.ref{width:150px;font-size:12px;color:var(--muted)}
+  td.notes{width:170px}
+  td.notes input{width:100%;border:1px solid transparent;border-bottom:1px solid var(--rule);
+    padding:3px 4px;font:inherit;font-size:12px;background:#fff}
+  td.notes input:focus{outline:none;border:1px solid var(--state);background:#F8FAFD}
+  .b{display:inline-block;width:17px;height:17px;line-height:17px;text-align:center;
+    font-size:10px;font-weight:800;color:#fff;border-radius:2px;margin-right:2px}
+  .b.s{background:var(--state)} .b.c{background:var(--city)}
+  .name{font-weight:500}
+  .sub-note{display:block;font-size:11.5px;color:var(--muted);margin-top:1px}
+  tr.only-s .name{color:var(--state);font-weight:700}
+  tr.only-c .name{color:var(--city);font-weight:700}
+  tr.have{background:#F4F8F4}
+  tr.have .name{opacity:.5;text-decoration:line-through}
+  .gap{display:inline-block;background:#FDECEA;color:#A3281C;font-size:10px;font-weight:700;
+    padding:1px 5px;border-radius:2px;margin-left:5px}
+
+  .empty{color:var(--muted);font-size:13px;padding:20px 0}
+  .e{border:1px solid var(--rule);padding:4px 6px;font:inherit;font-size:12.5px;border-radius:2px;width:100%;background:#fff}
+  .e:focus{outline:none;border-color:var(--state);background:#F8FAFD}
+  .e.wide{font-size:13.5px;font-weight:500}
+  .e.small{font-size:11.5px;color:var(--muted);margin-top:3px}
+  td.del{width:30px}
+  .x{border:1px solid var(--rule);background:#fff;color:#A3281C;width:24px;height:24px;
+     line-height:1;font-size:15px;font-weight:700;padding:0}
+  .x:hover{background:#FDECEA;border-color:#A3281C}
+  .addrow{border:1px dashed var(--rule);background:#fff;color:var(--muted);font-size:12px;
+     padding:6px 12px;margin:6px 0 2px;width:100%;text-align:left}
+  .addrow:hover{border-color:var(--state);color:var(--state)}
+  tr.added .name:before{content:"NEW ";font-size:9px;font-weight:800;color:#1F7A4D;letter-spacing:.06em}
+  body.editing .gap{display:none}
+
+  @media (max-width:760px){
+    .wrap{padding:16px 12px 60px}
+    h1{font-size:21px}
+    .legend{display:none}
+    .controls{position:static;padding:8px 0}
+    .fgrp{flex-basis:100%;margin:4px 0 0}
+    .fmath{font-size:11px}
+    .ckall{font-size:11px;padding:4px 10px}
+    h3.cat{padding:10px 6px;font-size:12.5px}
+    .catcount{font-size:11px}
+    .controls .tab,.controls .filt{flex:1 1 auto;font-size:12px;padding:7px 9px}
+    .act{flex:1 1 auto}
+    input[type=search]{flex-basis:100%;min-width:0}
+    .count{width:100%;text-align:right}
+
+    thead{display:none}
+    table,tbody,tr,td{display:block;width:auto}
+    tr.row{border:1px solid var(--rule);border-radius:3px;padding:10px 12px 8px 40px;
+      margin-bottom:8px;position:relative;border-left:4px solid var(--rule)}
+    tr.row.only-s{border-left-color:var(--state)}
+    tr.row.only-c{border-left-color:var(--city)}
+    tr.row:not(.only-s):not(.only-c){border-left-color:var(--both)}
+    td{border:none;padding:2px 0}
+    td.chk{position:absolute;left:11px;top:11px;width:auto;padding:0}
+    td.chk input{width:20px;height:20px}
+    td[data-l]:before{content:attr(data-l) ": ";font-size:10px;text-transform:uppercase;
+      letter-spacing:.06em;color:var(--muted);font-weight:700}
+    td.qty{font-size:14px}
+    td.qty:before{color:var(--muted)}
+    td.ref{font-size:11.5px}
+    td.notes input{border:1px solid var(--rule);border-radius:2px;padding:5px;font-size:13px}
+    .sub{font-size:12.5px;padding:4px 8px 4px 6px}
+    .sub input{width:16px;height:16px}
+    .subs{gap:6px}
+    td.del{position:absolute;right:8px;top:8px}
+  }
+
+  .subs{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;margin-top:5px}
+  .sub{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--muted);
+    cursor:pointer;user-select:none;border:1px solid var(--rule);border-radius:2px;padding:2px 6px 2px 4px}
+  .sub:hover{border-color:var(--state);color:var(--ink)}
+  .sub input{width:13px;height:13px;margin:0;cursor:pointer}
+  .sub:has(input:checked){background:#F0F5F0;border-color:#BFD6C2;color:#2F6B3C;text-decoration:line-through}
+  .prog{font-size:10px;font-weight:800;letter-spacing:.04em;color:var(--muted);
+    background:var(--panel);border-radius:2px;padding:2px 5px}
+  .prog.ok{background:#E7F2E9;color:#2F6B3C}
+  tr.have .subs{opacity:.55}
+  tr.have .name{opacity:.5;text-decoration:line-through}
+
+  #protocol{display:none}
+  .excl{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none}
+  .excl input{cursor:pointer}
+
+  /* Protocol-style PDF — mirrors HoH Medical Protocols §9.03 layout */
+  @media print{
+    body.protocol-mode header,
+    body.protocol-mode .legend,
+    body.protocol-mode .note-box,
+    body.protocol-mode .controls,
+    body.protocol-mode #list,
+    body.protocol-mode footer{display:none !important}
+    body.protocol-mode #protocol{display:block}
+  }
+  #protocol{font-family:"Times New Roman",Times,serif;color:#000}
+  .pr-head{margin-bottom:16pt}
+  .pr-head h1{font-family:inherit;font-size:15pt;font-weight:700;margin:0 0 6pt;letter-spacing:0}
+  .pr-head p{font-size:8.5pt;line-height:1.35;margin:0 0 3pt;color:#000}
+  .pr-key sup{font-weight:700}
+  .pr-sec{page-break-before:always}
+  .pr-sec:first-of-type{page-break-before:auto}
+  .pr-sec h2{font-family:inherit;font-size:11.5pt;font-weight:700;margin:0 0 6pt;
+    background:none;color:#000;padding:0;text-transform:none;letter-spacing:0;border:none}
+  .pr-lead{font-size:9pt;margin:0 0 8pt}
+  .pr-list{column-count:2;column-gap:26pt;list-style:none;margin:0;padding:0;font-size:9pt;line-height:1.5}
+  .pr-list li{break-inside:avoid;padding-left:9pt;text-indent:-9pt;margin-bottom:1pt}
+  .pr-list sup{font-size:6pt;font-weight:700;margin-left:2pt;color:#444}
+  .pr-foot{font-size:8pt;margin-top:14pt;padding-top:6pt;border-top:1px solid #000;
+    column-span:all;break-before:avoid}
+
+  .fgrp{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+    font-weight:700;margin-left:6px}
+  .fgrp:first-of-type{margin-left:0}
+  .fmath{font-size:11.5px;color:var(--muted);margin:8px 0 0;padding-left:2px}
+  .savestate{font-size:11.5px;color:var(--hoh,#1F7A4D);margin:4px 0 0;padding-left:2px;min-height:15px}
+  #savecopy{background:#1F7A4D;border-color:#1F7A4D}
+  .ckall{border:1px solid var(--rule);background:#fff;color:var(--muted);font-size:10px;
+    font-weight:700;padding:2px 8px;margin-left:8px;letter-spacing:.04em;vertical-align:2px}
+  .ckall:hover{border-color:var(--state);color:var(--state)}
+  .ckall.on{background:#E7F2E9;border-color:#BFD6C2;color:#2F6B3C}
+  .tierck{background:transparent;border-color:#5A6472;color:#C9D0D8;vertical-align:3px}
+  .tierck:hover{background:#fff;border-color:#fff;color:var(--ink)}
+  .tierck.on{background:#2F6B3C;border-color:#2F6B3C;color:#fff}
+
+  footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--rule);font-size:11.5px;color:var(--muted)}
+
+  @media print{
+    .controls,.legend,.note-box,td.notes input,.addrow,td.del,.ckall,.fmath,.chev,.catcount,.savestate{display:none}
+    .catwrap[hidden]{display:block !important}
+    h3.cat{display:block;cursor:auto}
+    .subs{gap:3px 8px}
+    .sub{font-size:8.5px;padding:1px 4px}
+    .prog{display:none}
+    td.notes{width:170px;border-bottom:1px solid var(--rule)}
+    body{font-size:10px}
+    .wrap{max-width:none;padding:0}
+    h2.tier{background:none;color:var(--ink);border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);padding:4px 0}
+    tr{page-break-inside:avoid} h3.cat{page-break-after:avoid}
+    section{page-break-before:always} section:first-of-type{page-break-before:auto}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Ambulance Required Equipment</h1>
+  <p class="sub">The minimum you must carry: State of Texas + City of Houston, merged. Quantities are the <b>higher</b> of the two — carry that number once, not once per agency.</p>
+</header>
+
+<div class="legend">
+  <div class="lg src-s"><b>S — State of Texas</b><span>25 TAC §157.11</span></div>
+  <div class="lg src-c"><b>C — City of Houston</b><span>HHD EMS, Minimum Equipment for Ambulances, Ver 9.16.25</span></div>
+  <div class="lg src-both"><b>S + C — Both</b><span>Required by both. One item satisfies both agencies.</span></div>
+</div>
+
+<div class="note-box">
+  <b>"Our past list" is reference, not requirement.</b> That column shows what Hatzalah's §9.03 (Thestrup, eff. 12/20/24) carried, so you can see where your old list already covers a requirement, falls short, or doesn't mention it. A <span class="gap">GAP</span> tag means your old list had nothing for that item — worth a look, but it's not automatically a violation, since some rows are vehicle or paperwork checks rather than kit.
+</div>
+
+<div class="controls">
+  <button class="tab" data-tier="all" aria-pressed="true">All tiers</button>
+  <button class="tab" data-tier="bls" aria-pressed="false">BLS</button>
+  <button class="tab" data-tier="als" aria-pressed="false">ALS</button>
+  <button class="tab" data-tier="micu" aria-pressed="false">MICU</button>
+  <span style="width:10px"></span>
+  <span class="fgrp">Requires:</span>
+  <button class="filt fa" data-f="all" aria-pressed="true">All</button>
+  <button class="filt fs" data-f="s">State</button>
+  <button class="filt fc" data-f="c">City</button>
+  <span class="fgrp">Overlap:</span>
+  <button class="filt fb" data-f="both">Both</button>
+  <button class="filt fs" data-f="sonly">State only</button>
+  <button class="filt fc" data-f="conly">City only</button>
+  <div class="spacer"></div>
+  <input type="search" id="q" placeholder="Search equipment…">
+  <button class="act" id="savecopy">Save my copy</button>
+  <button class="act ghost" id="foldall">Collapse all</button>
+  <button class="act ghost" id="edit">Edit list</button>
+  <button class="act" id="xlsx">Download Excel</button>
+  <button class="act ghost" id="pdf">Save as PDF</button>
+  <button class="act ghost" id="pdfchk">Print checklist</button>
+  <label class="excl"><input type="checkbox" id="onlychk"> PDF: only what I checked</label>
+  <button class="act ghost" id="clear">Clear checks</button>
+  <button class="act ghost" id="revert">Reset to original</button>
+  <span class="count" id="count"></span>
+</div>
+
+<p class="fmath" id="fmath"></p>
+<p class="savestate" id="savestate"></p>
+<div id="list"></div>
+<div id="protocol" aria-hidden="true"></div>
+<script id="saved-state" type="application/json">null</script>
+
+<footer>
+  Sources: 25 TAC §157.11 (current through Reg. 50 No. 26, Jun 27 2025) and Houston Health Department EMS Program, "Minimum Equipment for Ambulances," Ver 9.16.25. Reference column: Hatzalah of Houston Medical Protocols §9.03, Lars Thestrup MD, eff. 12/20/2024. Working aid, not a legal opinion — the controlling documents are the rule, the current HHD sheet, and your medical director's signed equipment list. State §157.11(c)(7)(R) also points to an equipment checklist on the DSHS provider application, which is not reflected here.
+</footer>
+
+</div>
+
+<script>
+// [item, requiredQty, src, note, ourPastList]
+// src: "s" state only | "c" city only | "sc" both
+const DATA = {
+  bls: {
+    note: "Required on every ambulance. Titles and categories mirror the HHD sheet (Ver 9.16.25) exactly. State §157.11(k)(1) + (k)(8) rows are marked S.",
+    cats: {
+      "Vehicle Requirements": [
+        ["Current registration","—","c","","Current Vehicle Inspection Sticker"],
+        ["Name of service on both sides","—","sc","State §157.11(e)(7): min 2-inch contrasting lettering, plus \"TX\" + license number","—"],
+        ["No smoking signs in front and rear","—","sc","","No-Smoking Signs (1 Cab & 1 Patient Area)"],
+        ["Tires in good condition","—","c","","—"],
+        ["Doors in acceptable condition","—","c","","—"],
+        ["All items stored securely","—","sc","State §157.11(j)(2): secured at time of patient care","—"],
+        ["Dome lights","—","c","","—"],
+        ["Seat belts front / rear","—","c","","—"],
+        ["Emergency lights","—","sc","State §157.11(k)(8)(B): operable emergency warning devices","—"],
+        ["Siren","—","sc","State §157.11(k)(8)(B): operable emergency warning devices","—"],
+        ["Vehicle horn","—","c","","—"],
+        ["Vehicle lights","—","c","","—"],
+        ["Windshield free of obstructions","—","c","","—"],
+        ["Communication equipment","—","sc","State §157.11(e)(5): capable of contacting appropriate medical resources","Radio (1)"],
+        ["Steps and body free of major damage","—","c","","—"],
+        ["Positive locks on cabinets and seats","—","c","","—"],
+        ["Free from electrical hazards","—","c","","—"],
+        ["Clean equipment patient area","—","c","","—"],
+        ["Environmental system — heating and cooling","—","s","NOT ON HHD SHEET. State §157.11(e)(4): must protect medications per manufacturer spec","Air Conditioner/Heater"]
+      ],
+      "Documentation": [
+        ["Current protocols signed by medical director","—","sc","","Medical Treatment Guidelines signed by MD (1)"],
+        ["Current TDSHS vehicle authorization","—","sc","State: original, correct level, displayed in patient compartment","Current TDSHS License"],
+        ["Current proof of insurance","—","c","","—"],
+        ["CoH ambulance service permit","—","c","","City of Houston Permit (1)"],
+        ["CoH ambulance driver's permit","—","c","","—"],
+        ["Vehicle is listed on vehicle information page","—","c","","—"],
+        ["Equipment, supply and medication list available to crew","—","s","NOT ON HHD SHEET. State §157.11(k)(8)(A): current and complete","—"]
+      ],
+      "Safety Equipment": [
+        ["Emergency road triangles or non-flammable reflective devices","3","c","","Emergency Reflective Triangle (3)"],
+        ["Fire extinguisher- mounted, tagged, accessible from patient area","1","sc","State §157.11(k)(8)(G) adds: 5-pound ABC, currently inspected","Fire Extinguisher Mounted and Tagged (1)"],
+        ["Flashlight with charger or extra batteries","1","sc","State: portable, battery-powered — a pen-light does not satisfy","Flashlight (1)"],
+        ["Current HAZMAT ERG","1","sc","Both require the CURRENT edition — ERG 2024 is current, next due 2028. Electronic version acceptable to state.","ERG, 2016 or newer (1) — two editions stale"],
+        ["Reflective vests","2","c","","—"],
+        ["Powered equipment: manual feature, spare batteries, or alternate power","—","s","NOT ON HHD SHEET. State §157.11(j)(2): applies to every powered patient-care device","—"]
+      ],
+      "Transportation, Immobilization and Splinting": [
+        ["KED or short board","1","sc","","Extrication Device (KED) (1)"],
+        ["Long spine board","1","sc","State §157.11(k)(1)(J): spinal immobilization device","Backboard (long) w/ Tape (1)"],
+        ["Cervical collars infant- adult","1 ea","sc","State: rigid cervical immobilization device","Adult (2), Pediatric (2)"],
+        ["Stretcher","1","sc","State: patient fully restrained per manufacturer recommendation","Multi-Level Stretcher (1)"],
+        ["Stair chair or mega mover","1","c","","Stair Chair (1)"],
+        ["Pediatric restraint System","1","c","","Car Seat or Equivalent (1)"],
+        ["Extremity splint","2","sc","","Splint Pack or 2 short / 2 med / 2 long"],
+        ["Femoral (traction) splint","1","c","","Traction Splint for Adult & Child (1)"],
+        ["Pelvis stabilizing device or material","1","c","","—"],
+        ["Equipment to meet special patient needs","—","s","NOT ON HHD SHEET. State §157.11(k)(1)(L): defined by your medical director","—"]
+      ],
+      "Oxygen & Suction": [
+        ["Mounted oxygen cylinder (>200 psi)","1","sc","","\"H\" Cylinder w/ Regulator (1)"],
+        ["Portable oxygen cylinder w/ regulator","1","sc","","\"D\" Cylinder (2) + \"D\" Regulator (1)"],
+        ["Nasal cannula pediatric - adult","1 ea","sc","","Adult (2), Pediatric (2)"],
+        ["Non-rebreather or simple face mask pediatric - adult","1 ea","sc","","NRB Adult (2), NRB Child (2)"],
+        ["BVM infant - adult","1 ea","sc","State: bag valve mask units, oxygen capable","Adult (1), Child (1), Infant w/ neonatal mask (1)"],
+        ["OPA (40mm, 60mm, 80mm, 90mm, 100mm, &110mm)","1 ea","sc","","Adult (2), Child (2), Infant (2)"],
+        ["NPA (16fr or smaller, 18fr-24fr, & 26fr or larger)","1 ea","c","","Multiple Sizes (2)"],
+        ["Mounted and Portable Suction w/ intact cannister","1","sc","","Wall Mount (1), Portable (1), Spare Canister (1)"],
+        ["Suction catheter (5 or 6, 8 or 10, 12 or 14, 16 or 18)","1 ea.","c","","Multiple Sizes"],
+        ["Rigid suction catheter","1","c","","—"]
+      ],
+      "Trauma & Bandaging": [
+        ["Commercial arterial tourniquet","2","sc","","Tourniquet (2)"],
+        ["4x4 sterile","25","sc","","Dressing, 4x4, Sterile (8)"],
+        ["4x4 non- sterile","25","c","","—"],
+        ["Adhesive bandage","1 bx","sc","","—"],
+        ["Adhesive tape","2","sc","","Tape, Adhesive (2)"],
+        ["Occlusive dressing / chest seal","2","sc","","Chest Seal (2), Dressing Occlusive (1)"],
+        ["Fluid for irrigation of wounds","1","c","","Sterile Saline or Water Bottle (1)"],
+        ["Elastic (ACE) bandage","2","sc","","—"]
+      ],
+      "Infection Control": [
+        ["Hand cleaner / sanitizer","1","c","","—"],
+        ["Mounted sharps container","1","sc","","Sharps Container (1)"],
+        ["Emesis bag, basin, or bed pan","2 ea","c","","Disposable Bed Pan (1)"],
+        ["Biohazard bags","1","sc","","Bio-Hazard Bag (2)"],
+        ["General trash bags","1","c","","—"],
+        ["Disinfectant wipes or solution","1","c","","Disinfectant/Cleaner (1)"],
+        ["Examination gloves","1 bx.","sc","State: protective, non-porous","1 box each XL, Lg, Med"],
+        ["Eye protection","2","sc","","Eyewear, Protective (2)"],
+        ["Gowns","2","sc","State: medical protective gowns or equivalent","Gown, Protective (2)"],
+        ["Surgical masks","2","c","","Masks, Protective (2)"],
+        ["N95 masks","2","sc","State §157.11(k)(8)(C)(iii) is stricter: one per crew member. Carry the greater of 2 or crew size.","—"],
+        ["Personal cleansing supplies","—","s","NOT ON HHD SHEET. State §157.11(k)(8)(C)(v)","—"]
+      ],
+      "Vitals & Diagnostics": [
+        ["Glucometer w/ test strips & disposable lancets","1","sc","","Blood Glucometer Kit (1)"],
+        ["Oral glucose","1","c","","Glucose, Oral (1)"],
+        ["Pulse oximeter with pediatric - adult capabilities","1","sc","","Pulse Oximeter (1)"],
+        ["Stethoscope","1","sc","","Stethoscope (1)"],
+        ["Blood pressure cuffs infant - adult","1 ea","sc","","Adult (1), Child (1)"],
+        ["Thermometer (w/ covers if oral)","1","sc","","Thermometer (1) + Probes (2)"]
+      ],
+      "Miscellaneous": [
+        ["Trauma shears","1","c","","Trauma Shears (2)"],
+        ["Triage marking system or 10 tags","25","sc","MERGED: HHD sheet says 10 tags; state §157.11(k)(8)(J) requires 25 — or documented RAC triage plan participation","Disaster Tags (10)"],
+        ["Cold pack","2","c","","Cold Pack (2)"],
+        ["Heat pack","2","c","","—"],
+        ["Emergency blanket","2","c","","Blanket (2)"],
+        ["Alcohol swabs or topical antiseptic towelettes","20","c","","Alcohol Preps (10)"],
+        ["Pediatric dosing","1","c","","—"],
+        ["OB Kit w/ baby bunting and bulb suction","1","c","","O.B. Kit, Sterile (1)"]
+      ],
+      "Cardiovascular Care": [
+        ["AED w/ no errors","1","sc","State: external cardiac defibrillator appropriate to staffing level","AED (1)"],
+        ["Spare battery","1","c","","—"],
+        ["Adult & Pediatric defibrillator pads (compatible with AED)","2ea","sc","State §157.11(k)(1)(O): two sets adult AND two sets pediatric","AED Pads Adult (1), AED Pads Infant/Child (1)"]
+      ],
+      "Medications": [
+        ["Epinephrine for anaphylaxis w/ delivery capability (pediatric & adult)","1ea","sc","State §157.11(k)(1)(Q): auto injector or similar device","EpiPen Adult (1) + EpiPen Jr (1), or Certadose Kit"],
+        ["Filter needles if using ampule","1ea","c","","—"],
+        ["Naloxone w/ appropriate delivery system","1","c","","Naloxone Single Dose Spray (2)"],
+        ["Other medications per protocols w/ appropriate delivery devices","—","sc","State §157.11(k)(1)(N)","Albuterol (3), Nebulizers (4)"],
+        ["Pediatric and neonatal equipment per endorsed national standards","—","s","NOT A WHITE BOX — from the HHD sheet footnote and state §157.11(e)(1). Must sit inside the MD-approved list at every level.","Infant Insulating Device (1)"]
+      ]
+    }
+  },
+  als: {
+    note: "Everything in BLS, PLUS the following. State §157.11(k)(2): all BLS equipment + advanced airway equipment. City: ALS section.",
+    cats: {
+      "Intubation & Airways": [
+        ["Magill forceps","1","c","","Adult (1), Pediatric (1)"],
+        ["Supraglottic airway devices infant - adult","1 ea","sc","State §157.11(k)(2)(C): advanced airway equipment","iGel Supraglottic Device (4 sizes)"],
+        ["Chest decompression needle 14g x 1.5\" or greater or other commercially available size","2","c","","Chest decompression needle (3 sizes)"],
+        ["Continuous waveform capnography","—","sc","State §157.11(k)(7): required when performing or monitoring ET intubation","ETCO₂ Filterline (1), ETCO₂ Nasal Cannula (1)"],
+        ["Laryngoscope handle & blades (size 0 -4)","1 ea","c","HHD sheet: under \"If not using supraglottic:\"","Handle (2), Blades Adult/Peds/Infant (1 ea), Spare Battery (2)"],
+        ["ET tubes 3.0- 8.0","1 ea","c","HHD sheet: under \"If not using supraglottic:\"","MICU: cuffed 6.0–9.0 (3), uncuffed 2.5–5.5 (3)"]
+      ],
+      "Medication Delivery & Vascular Access": [
+        ["Isotonic crystalloid fluids per protocol","—","sc","State §157.11(k)(2)(A)(v): IV initiation and maintenance of fluids","Sodium Chloride, IV Bag (2)"],
+        ["Administration tubing (macro & micro)","1 ea","c","","Micro Drip (1), Regular Macro Drip (1)"],
+        ["Other medications per protocols w/ appropriate delivery devices","—","c","","Aspirin 81mg (24), Ipratropium (3), Narcan 2mg (2)"]
+      ]
+    }
+  },
+  micu: {
+    note: "Everything in BLS and ALS, PLUS the following. State §157.11(k)(3): all BLS and ALS equipment + transmitting 12-lead monitor-defibrillator + pharmaceuticals per MD protocol. City: MICU section.",
+    cats: {
+      "MICU equipment & medications": [
+        ["Cardiac monitor w/ ECG acquisition and trans-cutaneous pacing","—","sc","State §157.11(k)(3)(C) adds: transmitting 12-lead capability","ECG Monitor/Defibrillator (1)"],
+        ["Extra batteries for monitor","1","c","","ECG Monitor Spare Battery (2)"],
+        ["Extra paper","1","c","","ECG Paper (1)"],
+        ["Electrodes","1 set","c","","ECG Electrode (10)"],
+        ["Specialized equipment per protocols","—","c","","Video Laryngoscope (1), EZ-IO (1)"],
+        ["Other medications per protocol w/ appropriate delivery devices","—","sc","State §157.11(k)(3)(D): pharmaceuticals as required by MD protocols","Full MICU drug box — see §9.03(C)"]
+      ]
+    }
+  }
+};
+
+// Sizes / parts that a single HHD box actually expands into.
+// The box title stays exactly as printed on the sheet; these are the checkboxes inside it.
+const SUBS = {
+  'No smoking signs in front and rear': ['Front (cab)','Rear (patient compartment)'],
+  'Fire extinguisher- mounted, tagged, accessible from patient area': ['5-lb ABC','Mounted','Tagged / currently inspected','Accessible from patient area'],
+  'Cervical collars infant- adult': ['Infant','Pediatric','Adult'],
+  'Nasal cannula pediatric - adult': ['Pediatric','Adult'],
+  'Non-rebreather or simple face mask pediatric - adult': ['Pediatric','Adult'],
+  'BVM infant - adult': ['Infant','Child','Adult'],
+  'OPA (40mm, 60mm, 80mm, 90mm, 100mm, &110mm)': ['40mm','60mm','80mm','90mm','100mm','110mm'],
+  'NPA (16fr or smaller, 18fr-24fr, & 26fr or larger)': ['16fr or smaller','18fr-24fr','26fr or larger'],
+  'Mounted and Portable Suction w/ intact cannister': ['Mounted / wall unit','Portable unit','Intact cannister'],
+  'Suction catheter (5 or 6, 8 or 10, 12 or 14, 16 or 18)': ['5 or 6','8 or 10','12 or 14','16 or 18'],
+  'Blood pressure cuffs infant - adult': ['Infant','Child','Adult'],
+  'Thermometer (w/ covers if oral)': ['Thermometer','Covers (if oral)'],
+  'Adult & Pediatric defibrillator pads (compatible with AED)': ['Adult — set 1','Adult — set 2','Pediatric — set 1','Pediatric — set 2'],
+  'Epinephrine for anaphylaxis w/ delivery capability (pediatric & adult)': ['Pediatric','Adult'],
+  'Supraglottic airway devices infant - adult': ['Infant','Child','Adult'],
+  'Laryngoscope handle & blades (size 0 -4)': ['Handle','Blade 0','Blade 1','Blade 2','Blade 3','Blade 4'],
+  'ET tubes 3.0- 8.0': ['3.0','3.5','4.0','4.5','5.0','5.5','6.0','6.5','7.0','7.5','8.0'],
+  'Administration tubing (macro & micro)': ['Macro drip','Micro drip'],
+  'Cardiac monitor w/ ECG acquisition and trans-cutaneous pacing': ['ECG acquisition','Trans-cutaneous pacing','Transmitting 12-lead (state)']
+};
+
+// sub-lists that are genuine sizes/variants -> each becomes its own protocol-PDF line.
+// everything else is an attribute of one object and stays on one line.
+const SPLIT = new Set([
+  'Cervical collars infant- adult',
+  'Nasal cannula pediatric - adult',
+  'Non-rebreather or simple face mask pediatric - adult',
+  'BVM infant - adult',
+  'OPA (40mm, 60mm, 80mm, 90mm, 100mm, &110mm)',
+  'NPA (16fr or smaller, 18fr-24fr, & 26fr or larger)',
+  'Suction catheter (5 or 6, 8 or 10, 12 or 14, 16 or 18)',
+  'Blood pressure cuffs infant - adult',
+  'Supraglottic airway devices infant - adult',
+  'ET tubes 3.0- 8.0',
+  'Administration tubing (macro & micro)',
+  'Laryngoscope handle & blades (size 0 -4)',
+  'Adult & Pediatric defibrillator pads (compatible with AED)',
+  'Epinephrine for anaphylaxis w/ delivery capability (pediatric & adult)'
+]);
+
+const TIER_LABEL = {bls:"BLS — Basic Life Support", als:"ALS — Advanced Life Support", micu:"MICU — Mobile Intensive Care Unit"};
+const SRC_NAME = {s:"State of Texas", c:"City of Houston"};
+const SRC_LABEL = {s:"State only", c:"City only", sc:"State + City"};
+
+// flatten into one editable model
+function buildDefault(){
+  const out = []; let n = 0;
+  for (const tier of ['bls','als','micu'])
+    for (const [cat, items] of Object.entries(DATA[tier].cats))
+      for (const [name, qty, src, note, ours] of items)
+        out.push({id:++n, tier, cat, name, qty, src, note:note||'', ours:ours||'—',
+                  have:false, notes:'', added:false,
+                  subs:(SUBS[name]||[]).map(l=>({label:l, have:false}))});
+  return out;
+}
+
+let MODEL = buildDefault();
+let seq = MODEL.length;
+let savedFrom = 'built-in list';
+
+// (a) state baked into this file by a previous "Save my copy"
+try {
+  const baked = JSON.parse(document.getElementById('saved-state').textContent);
+  if (baked && baked.rows && baked.rows.length){
+    MODEL = baked.rows;
+    seq = Math.max(...MODEL.map(r=>r.id));
+    savedFrom = 'this file, saved ' + (baked.savedAt || 'earlier');
+  }
+} catch(e){}
+
+// (b) newer unsaved work from this browser, if any
+const LSKEY = 'hoh-ambulance-equipment-v1';
+try {
+  const local = JSON.parse(localStorage.getItem(LSKEY) || 'null');
+  if (local && local.rows && local.rows.length){
+    MODEL = local.rows;
+    seq = Math.max(...MODEL.map(r=>r.id));
+    savedFrom = 'unsaved changes in this browser (' + (local.savedAt||'') + ')';
+  }
+} catch(e){}
+
+function snapshot(){
+  return {savedAt: new Date().toLocaleString('en-US'), rows: MODEL};
+}
+function autosave(){
+  try {
+    localStorage.setItem(LSKEY, JSON.stringify(snapshot()));
+    const el = document.getElementById('savestate');
+    if (el) el.textContent = 'Changes saved in this browser';
+  } catch(e){
+    const el = document.getElementById('savestate');
+    if (el) el.textContent = 'Cannot auto-save here — use Save my copy';
+  }
+}
+
+const MATCH = {
+  all:()=>true, s:x=>x.includes('s'), c:x=>x.includes('c'),
+  both:x=>x==='sc', sonly:x=>x==='s', conly:x=>x==='c'
+};
+
+let tier='all', filt='all', q='', editing=false;
+const collapsed = new Set();
+const ckey = (t,c) => t+'::'+c;
+const list = document.getElementById('list');
+const esc = v => String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+
+function visible(r){
+  if (tier!=='all' && r.tier!==tier) return false;
+  if (!MATCH[filt](r.src)) return false;
+  if (q && !(r.name+' '+r.note+' '+r.ours+' '+r.notes).toLowerCase().includes(q)) return false;
+  return true;
+}
+
+function render(){
+  let html='';
+  for (const t of ['bls','als','micu']){
+    const inTier = MODEL.filter(r=>r.tier===t);
+    if (tier!=='all' && tier!==t) continue;
+    const shown = inTier.filter(visible);
+    if (!shown.length && !editing) continue;
+    html += `<section data-tier="${t}"><h2 class="tier">${TIER_LABEL[t]}
+      <button class="ckall tierck" data-tier="${t}">Check all</button></h2>
+      <p class="tiernote">${DATA[t].note}</p>`;
+    const cats = [...new Set(inTier.map(r=>r.cat))];
+    for (const cat of cats){
+      const rs = shown.filter(r=>r.cat===cat);
+      if (!rs.length) continue;
+      const key = ckey(t, cat);
+      const isOpen = !collapsed.has(key) || !!q;
+      const done = rs.filter(r=>r.have).length;
+      html += `<h3 class="cat${isOpen?'':' shut'}" data-key="${esc(key)}" role="button" tabindex="0"
+          aria-expanded="${isOpen}">
+        <span class="chev" aria-hidden="true"></span><span class="catname">${esc(cat)}</span>
+        <span class="catcount">${done}/${rs.length}</span>
+        <button class="ckall" data-tier="${t}" data-cat="${esc(cat)}">Check all</button></h3>
+        <div class="catwrap"${isOpen?'':' hidden'}><table><thead><tr>
+        <th></th><th>Required</th><th>Item</th><th>Src</th><th>Our past list</th><th>Notes</th>${editing?'<th></th>':''}
+      </tr></thead><tbody>`;
+      for (const r of rs) html += rowHTML(r);
+      html += `</tbody></table>`;
+      if (editing) html += `<button class="addrow" data-tier="${t}" data-cat="${esc(cat)}">+ Add item to ${esc(cat)}</button>`;
+      html += `</div>`;
+    }
+    html += `</section>`;
+  }
+  list.innerHTML = html || `<p class="empty">Nothing matches that filter.</p>`;
+  MODEL.forEach(r=>{
+    if (!r.subs.length) return;
+    const el = list.querySelector(`tr[data-id="${r.id}"] .have`);
+    if (!el) return;
+    const done = r.subs.filter(x=>x.have).length;
+    el.indeterminate = done>0 && done<r.subs.length;
+  });
+  document.querySelectorAll('.ckall').forEach(b=>{
+    const rs = scopeRows(b.dataset.tier, b.dataset.cat || null);
+    const on = rs.filter(r=>r.have).length;
+    const all = rs.length && on===rs.length;
+    b.textContent = all ? `Uncheck all (${rs.length})` : `Check all (${on}/${rs.length})`;
+    b.classList.toggle('on', !!all);
+  });
+  const totalCats = [...document.querySelectorAll('h3.cat')].length;
+  const openCats = [...document.querySelectorAll('h3.cat:not(.shut)')].length;
+  document.getElementById('foldall').textContent = openCats ? 'Collapse all' : 'Expand all';
+  counts();
+  const pool = MODEL.filter(r=>tier==='all'||r.tier===tier);
+  const n = f => pool.filter(r=>MATCH[f](r.src)).length;
+  document.getElementById('fmath').textContent =
+    `${pool.length} items = ${n('sonly')} state only + ${n('both')} required by both + ${n('conly')} city only. ` +
+    `"State" (${n('s')}) and "City" (${n('c')}) each include the ${n('both')} shared items.`;
+  document.getElementById('count').textContent = `${MODEL.filter(visible).length} shown`;
+}
+
+function rowHTML(r){
+  const only = r.src.length===1 ? ` only-${r.src}` : '';
+  const badges = [...r.src].map(x=>`<span class="b ${x}" title="${SRC_NAME[x]}">${x.toUpperCase()}</span>`).join('');
+  const gap = (!r.ours || r.ours==='—') ? '<span class="gap">GAP</span>' : '';
+  if (editing) return `<tr class="row edit" data-id="${r.id}">
+    <td class="chk"><input type="checkbox" class="have" ${r.have?'checked':''}></td>
+    <td class="qty"><input class="e" data-k="qty" value="${esc(r.qty)}"></td>
+    <td><input class="e wide" data-k="name" value="${esc(r.name)}">
+        <input class="e small" data-k="note" value="${esc(r.note)}" placeholder="detail / citation">
+        <input class="e small" data-k="_subs" value="${esc(r.subs.map(x=>x.label).join(', '))}" placeholder="sizes / parts, comma separated"></td>
+    <td class="src"><select class="e" data-k="src">
+      ${['s','c','sc'].map(v=>`<option value="${v}"${r.src===v?' selected':''}>${SRC_LABEL[v]}</option>`).join('')}
+    </select></td>
+    <td class="ref"><input class="e small" data-k="ours" value="${esc(r.ours)}"></td>
+    <td class="notes"><input class="nt" value="${esc(r.notes)}" placeholder="…"></td>
+    <td class="del"><button class="x" title="Delete row">×</button></td>
+  </tr>`;
+  return `<tr class="row${only}${r.have?' have':''}${r.added?' added':''}" data-id="${r.id}">
+    <td class="chk"><input type="checkbox" class="have" ${r.have?'checked':''}></td>
+    <td class="qty" data-l="Required">${esc(r.qty)}</td>
+    <td data-l="Item"><span class="name">${esc(r.name)}</span>${gap}${r.note?`<span class="sub-note">${esc(r.note)}</span>`:''}${subHTML(r)}</td>
+    <td class="src" data-l="Source">${badges}</td>
+    <td class="ref" data-l="Our past list">${esc(r.ours)}</td>
+    <td class="notes" data-l="Notes"><input class="nt" value="${esc(r.notes)}" placeholder="…"></td>
+  </tr>`;
+}
+
+function counts(){
+  const pool = MODEL.filter(r=>tier==='all'||r.tier===tier);
+  document.querySelectorAll('.filt').forEach(b=>{
+    if (!b.dataset.label) b.dataset.label=b.textContent.trim();
+    b.textContent = `${b.dataset.label} (${pool.filter(r=>MATCH[b.dataset.f](r.src)).length})`;
+  });
+}
+
+function scopeRows(t, cat){
+  return MODEL.filter(r => r.tier===t && (!cat || r.cat===cat) && visible(r));
+}
+function setHave(r, v){
+  r.have = v;
+  r.subs.forEach(x=>x.have = v);
+}
+function roll(r){
+  if (!r.subs.length) return;
+  r.have = r.subs.every(x=>x.have);
+}
+function subHTML(r){
+  if (!r.subs.length) return '';
+  const done = r.subs.filter(x=>x.have).length;
+  return `<div class="subs">
+    <span class="prog${done===r.subs.length?' ok':''}">${done}/${r.subs.length}</span>
+    ${r.subs.map((x,i)=>`<label class="sub"><input type="checkbox" class="subchk" data-i="${i}" ${x.have?'checked':''}> ${esc(x.label)}</label>`).join('')}
+  </div>`;
+}
+
+const get = e => MODEL.find(r=>r.id === +e.target.closest('tr').dataset.id);
+
+list.addEventListener('input', e=>{
+  if (e.target.classList.contains('nt')) { get(e).notes = e.target.value; autosave(); }
+  else if (e.target.classList.contains('e') && e.target.dataset.k === '_subs'){
+    const r = get(e);
+    const want = e.target.value.split(',').map(x=>x.trim()).filter(Boolean);
+    const prev = Object.fromEntries(r.subs.map(x=>[x.label, x.have]));
+    r.subs = want.map(l=>({label:l, have: !!prev[l]}));
+    roll(r);
+  }
+  else if (e.target.classList.contains('e')) get(e)[e.target.dataset.k] = e.target.value;
+  autosave();
+});
+list.addEventListener('change', e=>{
+  if (e.target.classList.contains('subchk')){
+    const r = get(e);
+    r.subs[+e.target.dataset.i].have = e.target.checked;
+    roll(r); render();
+  }
+  else if (e.target.classList.contains('have')){
+    const r = get(e); r.have = e.target.checked;
+    if (r.subs.length){ r.subs.forEach(x=>x.have = r.have); render(); }
+    else e.target.closest('tr').classList.toggle('have', r.have);
+  } else if (e.target.classList.contains('e') && e.target.dataset.k==='src'){
+    get(e).src = e.target.value; counts();
+  }
+  autosave();
+});
+function toggleCat(h){
+  const k = h.dataset.key;
+  if (collapsed.has(k)) collapsed.delete(k); else collapsed.add(k);
+  render();
+}
+list.addEventListener('keydown', e=>{
+  const h = e.target.closest('h3.cat');
+  if (h && (e.key==='Enter' || e.key===' ')){ e.preventDefault(); toggleCat(h); }
+});
+list.addEventListener('click', e=>{
+  const h = e.target.closest('h3.cat');
+  if (h && !e.target.classList.contains('ckall')){ toggleCat(h); return; }
+  if (e.target.classList.contains('x')){
+    const r = get(e);
+    if (confirm(`Delete "${r.name}"?`)){ MODEL = MODEL.filter(x=>x.id!==r.id); render(); autosave(); }
+  }
+  if (e.target.classList.contains('ckall')){
+    const {tier:t, cat} = e.target.dataset;
+    const rs = scopeRows(t, cat || null);
+    const allOn = rs.length && rs.every(r=>r.have);
+    rs.forEach(r=>setHave(r, !allOn));
+    render(); autosave();
+    return;
+  }
+  if (e.target.classList.contains('addrow')){
+    const {tier:t, cat} = e.target.dataset;
+    const idx = MODEL.map(r=>r.cat===cat && r.tier===t).lastIndexOf(true);
+    MODEL.splice(idx+1, 0, {id:++seq, tier:t, cat, name:'New item', qty:'1', src:'c',
+                            note:'', ours:'—', have:false, notes:'', added:true});
+    render(); autosave();
+    const el = [...document.querySelectorAll('tr.row')].find(x=>+x.dataset.id===seq);
+    if (el) el.querySelector('[data-k="name"]').select();
+  }
+});
+
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
+  tier=b.dataset.tier;
+  document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-pressed', x===b));
+  render();
+}));
+document.querySelectorAll('.filt').forEach(b=>b.addEventListener('click',()=>{
+  filt=b.dataset.f;
+  document.querySelectorAll('.filt').forEach(x=>x.setAttribute('aria-pressed', x===b));
+  render();
+}));
+document.getElementById('q').addEventListener('input',e=>{q=e.target.value.trim().toLowerCase();render();});
+
+const editBtn = document.getElementById('edit');
+editBtn.addEventListener('click',()=>{
+  editing=!editing;
+  editBtn.textContent = editing ? 'Done editing' : 'Edit list';
+  editBtn.classList.toggle('ghost', !editing);
+  document.body.classList.toggle('editing', editing);
+  render();
+});
+
+document.getElementById('clear').addEventListener('click',()=>{
+  if (!confirm('Clear all checkmarks and notes?')) return;
+  MODEL.forEach(r=>{r.have=false; r.notes=''; r.subs.forEach(x=>x.have=false);});
+  render(); autosave();
+});
+const SEC = {bls:'A. Minimum BLS Ambulance Equipment',
+             als:'B. Minimum ALS Equipment',
+             micu:'C. Minimum MICU Equipment'};
+const LEAD = {
+  bls:'',
+  als:'All BLS Equipment listed in A (Minimum BLS Equipment), plus:',
+  micu:'All BLS Equipment listed in A and all ALS Equipment listed in B, plus:'
+};
+
+// "Oropharyngeal airways — 40, 60..." -> "Oropharyngeal airways"
+const base = n => n.split(' — ')[0].replace(/\s*\([^)]*\)\s*$/,'').trim();
+
+function protocolLines(t){
+  const out = [];
+  for (const r of MODEL.filter(x=>x.tier===t)){
+    const qty = (r.qty && r.qty !== '—') ? ` (${r.qty})` : '';
+    if (r.subs.length && SPLIT.has(r.name)){
+      for (const sx of r.subs) out.push({txt:`${base(r.name)}, ${sx.label}${qty}`, src:r.src, have:sx.have});
+    } else if (r.subs.length){
+      const parts = r.subs.map(x=>x.label).join(', ');
+      out.push({txt:`${r.name} — ${parts}${qty}`, src:r.src, have:r.have});
+    } else {
+      out.push({txt:`${r.name}${qty}`, src:r.src, have:r.have});
+    }
+  }
+  return out.sort((a,b)=>a.txt.localeCompare(b.txt,'en',{sensitivity:'base'}));
+}
+
+function buildProtocol(){
+  const onlyChecked = document.getElementById('onlychk').checked;
+  let h = `<div class="pr-head"><h1>Minimum Equipment Requirements</h1>
+    <p>Combined minimum of 25 TAC §157.11 (State of Texas) and Houston Health Department
+    "Minimum Equipment for Ambulances" Ver 9.16.25 (City of Houston).
+    Where both require an item, the higher quantity is shown once.</p>
+    <p class="pr-key"><sup>S</sup> state only &nbsp;·&nbsp; <sup>C</sup> city only &nbsp;·&nbsp; <sup>SC</sup> both</p></div>`;
+  for (const t of ['bls','als','micu']){
+    let lines = protocolLines(t);
+    if (onlyChecked) lines = lines.filter(l=>l.have);
+    h += `<section class="pr-sec"><h2>${SEC[t]}</h2>`;
+    if (LEAD[t]) h += `<p class="pr-lead">${LEAD[t]}</p>`;
+    h += `<ul class="pr-list">` + lines.map(l =>
+      `<li>${esc(l.txt)}<sup>${l.src.toUpperCase()}</sup></li>`).join('') + `</ul>`;
+    h += `<p class="pr-foot">Compiled ${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}
+      &nbsp;·&nbsp; Reviewed by: ______________________________ &nbsp;&nbsp; Date: ____________</p></section>`;
+  }
+  document.getElementById('protocol').innerHTML = h;
+}
+
+document.getElementById('savecopy').addEventListener('click',()=>{
+  const doc = document.documentElement.cloneNode(true);
+  doc.querySelector('#list').innerHTML = '';
+  doc.querySelector('#protocol').innerHTML = '';
+  doc.querySelector('#saved-state').textContent = JSON.stringify(snapshot());
+  const html = '<!DOCTYPE html>\n' + doc.outerHTML;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([html], {type:'text/html'}));
+  a.download = 'index.html';
+  a.click();
+  try { localStorage.removeItem(LSKEY); } catch(e){}
+  document.getElementById('savestate').textContent = 'Saved to file — replace your copy with the download';
+});
+
+document.getElementById('revert').addEventListener('click',()=>{
+  if (!confirm('Throw away every change and go back to the original list?')) return;
+  try { localStorage.removeItem(LSKEY); } catch(e){}
+  MODEL = buildDefault();
+  seq = MODEL.length;
+  render();
+  document.getElementById('savestate').textContent = 'Reset to the original list';
+});
+
+document.getElementById('foldall').addEventListener('click',()=>{
+  const keys = [];
+  for (const t of ['bls','als','micu'])
+    for (const cat of new Set(MODEL.filter(r=>r.tier===t).map(r=>r.cat))) keys.push(ckey(t,cat));
+  const anyOpen = keys.some(k=>!collapsed.has(k));
+  collapsed.clear();
+  if (anyOpen) keys.forEach(k=>collapsed.add(k));
+  render();
+});
+document.getElementById('pdf').addEventListener('click',()=>{
+  buildProtocol();
+  document.body.classList.add('protocol-mode');
+  window.print();
+});
+document.getElementById('pdfchk').addEventListener('click',()=>{
+  document.body.classList.remove('protocol-mode');
+  window.print();
+});
+window.addEventListener('afterprint',()=>document.body.classList.remove('protocol-mode'));
+
+function collect(t){
+  const out = [];
+  for (const r of MODEL.filter(x=>x.tier===t)){
+    out.push({
+      "Have": r.have?"YES":(r.subs.some(x=>x.have)?"PARTIAL":""),
+      "Category": r.cat,
+      "Item": r.name,
+      "Required Qty": r.qty,
+      "Required By": SRC_LABEL[r.src] || r.src,
+      "Detail": r.note,
+      "Our Past List (§9.03)": r.ours,
+      "Notes": r.notes,
+      "Added by us": r.added?"YES":""
+    });
+    for (const sx of r.subs) out.push({
+      "Have": sx.have?"YES":"",
+      "Category": r.cat,
+      "Item": "    \u21B3 " + sx.label,
+      "Required Qty": "", "Required By": "", "Detail": "",
+      "Our Past List (§9.03)": "", "Notes": "", "Added by us": ""
+    });
+  }
+  return out;
+}
+
+document.getElementById('xlsx').addEventListener('click',()=>{
+  if (typeof XLSX === 'undefined'){
+    const all = ['bls','als','micu'].flatMap(t=>collect(t).map(o=>({Tier:t.toUpperCase(),...o})));
+    const heads = Object.keys(all[0]);
+    const q2 = v => `"${String(v??'').replace(/"/g,'""')}"`;
+    const csv = [heads.map(q2).join(','), ...all.map(r=>heads.map(h=>q2(r[h])).join(','))].join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download = 'ambulance-required-equipment.csv'; a.click();
+    alert('Excel library did not load (no internet). Downloaded as CSV — opens in Excel.');
+    return;
+  }
+  const wb = XLSX.utils.book_new();
+  for (const t of ['bls','als','micu']){
+    const ws = XLSX.utils.json_to_sheet(collect(t));
+    ws['!cols']=[{wch:6},{wch:26},{wch:52},{wch:16},{wch:14},{wch:60},{wch:34},{wch:26},{wch:11}];
+    XLSX.utils.book_append_sheet(wb, ws, t.toUpperCase());
+  }
+  XLSX.writeFile(wb, 'ambulance-required-equipment.xlsx');
+});
+
+for (const t of ['bls','als','micu'])
+  for (const cat of new Set(MODEL.filter(r=>r.tier===t).map(r=>r.cat)))
+    collapsed.add(ckey(t, cat));
+
+render();
+</script>
+</body>
+</html>
