@@ -200,7 +200,21 @@
   #ghpanel label > span{width:56px}
   .ghrow{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
   #gh-status{font-size:11.5px;color:var(--muted)}
-  .ghwhere{font-size:11px !important;color:var(--muted);margin:2px 0 0 !important}
+  #gate{position:fixed;inset:0;background:rgba(20,24,31,.55);display:flex;align-items:center;
+    justify-content:center;padding:20px;z-index:50}
+  .gatebox{background:#fff;border-radius:4px;padding:22px 22px 18px;max-width:380px;width:100%;
+    box-shadow:0 10px 40px rgba(0,0,0,.25)}
+  .gatebox h2{font-size:17px;margin:0 0 4px;letter-spacing:-0.01em}
+  .gatebox p{font-size:12.5px;color:var(--muted);margin:0 0 14px;line-height:1.45}
+  .gatebox label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.07em;
+    color:var(--muted);font-weight:700;margin-bottom:10px}
+  .gatebox label input{display:block;width:100%;margin-top:4px;border:1px solid var(--rule);
+    border-radius:2px;padding:9px 10px;font:inherit;font-size:15px;text-transform:none;letter-spacing:0}
+  .gatebox label input:focus{outline:none;border-color:var(--state);background:#F8FAFD}
+  #gate-go{width:100%;padding:10px;font-size:14px;margin-top:2px;background:#1F7A4D;border-color:#1F7A4D}
+  .gatemsg{font-size:12px;margin:10px 0 0 !important;min-height:16px;color:#A3281C}
+  .gatefoot{font-size:11px;margin:10px 0 0 !important;color:var(--muted)}
+  #resetauth{color:var(--muted)}
   .ghwarn{font-size:11px;color:#A3281C;background:#FDECEA;border-left:3px solid #A3281C;
     padding:6px 8px;margin:10px 0 0 !important}
   .ckall{border:1px solid var(--rule);background:#fff;color:var(--muted);font-size:10px;
@@ -230,6 +244,22 @@
 </style>
 </head>
 <body>
+<div id="gate" hidden>
+  <div class="gatebox">
+    <h2 id="gate-title">Admin sign-in</h2>
+    <p id="gate-sub"></p>
+    <label id="gate-token-row">GitHub token
+      <input id="gate-token" type="password" placeholder="github_pat_..." autocapitalize="off" spellcheck="false">
+    </label>
+    <label>Password
+      <input id="gate-pw" type="password" placeholder="shared admin password" autocapitalize="off" spellcheck="false">
+    </label>
+    <button class="act" id="gate-go">Continue</button>
+    <p class="gatemsg" id="gate-msg"></p>
+    <p class="gatefoot">This device will be remembered. You will not be asked again.</p>
+  </div>
+</div>
+
 <div class="wrap">
 
 <header>
@@ -264,7 +294,6 @@
   <div class="spacer"></div>
   <input type="search" id="q" placeholder="Search equipment…">
   <button class="act" id="publish">Publish to site</button>
-  <button class="act ghost" id="gear" title="Publish settings" aria-label="Publish settings">⚙</button>
   <button class="act ghost" id="foldall">Collapse all</button>
   <button class="act ghost" id="edit">Edit list</button>
   <button class="act" id="xlsx">Download Excel</button>
@@ -279,25 +308,14 @@
 <p class="fmath" id="fmath"></p>
 <p class="savestate" id="savestate"></p>
 
-<div id="ghpanel" hidden>
-  <b>Publish settings</b>
-  <p>The token stays in this browser. Only its encrypted form is published.</p>
-  <label>GitHub token <input id="gh-token" type="password" placeholder="github_pat_..." autocapitalize="off" spellcheck="false"></label>
-  <label>Shared password <input id="gh-pw" type="password" placeholder="what admins will type" autocapitalize="off" spellcheck="false"></label>
-  <p class="ghwhere" id="gh-where"></p>
-  <div class="ghrow">
-    <button class="act" id="gh-lock">Lock token with password</button>
-    <button class="act ghost" id="gh-forget">Forget on this device</button>
-    <span id="gh-status"></span>
-  </div>
-  <p class="ghwarn">Lock the token, then press Publish once. That puts the encrypted token on the site. After that any admin can publish by typing the password — nothing to install. Use a long password: it is the only thing protecting the token. Changing it means locking again and republishing.</p>
-</div>
+
 <div id="list"></div>
 <div id="protocol" aria-hidden="true"></div>
 <script id="saved-state" type="application/json">null</script>
 <script id="admin-key" type="application/json">null</script>
 
 <footer>
+  <a href="#" id="resetauth">Change token or password</a> ·
   Sources: 25 TAC §157.11 (current through Reg. 50 No. 26, Jun 27 2025) and Houston Health Department EMS Program, "Minimum Equipment for Ambulances," Ver 9.16.25. Reference column: Hatzalah of Houston Medical Protocols §9.03, Lars Thestrup MD, eff. 12/20/2024. Working aid, not a legal opinion — the controlling documents are the rule, the current HHD sheet, and your medical director's signed equipment list. State §157.11(c)(7)(R) also points to an equipment checklist on the DSHS provider application, which is not reflected here.
 </footer>
 
@@ -859,15 +877,7 @@ function target(){
   };
 }
 
-function ghFill(){
-  const g = ghLoad(), a = ADMIN || {}, t = target();
-  document.getElementById('gh-token').value = g.token || '';
-  document.getElementById('gh-status').textContent = g.token ? 'Token available on this device.'
-    : (a.ct ? 'Token is locked — Publish asks for the password.' : 'No token yet.');
-  document.getElementById('gh-where').textContent = t.owner && t.repo
-    ? `Publishes to ${t.owner}/${t.repo} (${t.branch}) — read from the site address.`
-    : 'Open this from your GitHub Pages URL so it can work out the repo.';
-}
+
 
 const enc = new TextEncoder(), dec = new TextDecoder();
 const bufB64 = b => btoa(String.fromCharCode(...new Uint8Array(b)));
@@ -892,43 +902,78 @@ async function unlockToken(blob, pw){
   return dec.decode(pt);
 }
 
-document.getElementById('gh-lock').addEventListener('click', async ()=>{
+
+
+const gate = document.getElementById('gate');
+
+function openGate(){
+  const setup = !(ADMIN && ADMIN.ct);
   const t = target();
-  const token = document.getElementById('gh-token').value.trim();
-  const pw = document.getElementById('gh-pw').value;
-  const st = document.getElementById('gh-status');
-  if (!token){ st.textContent = 'Paste your token first.'; return; }
-  if (!t.owner || !t.repo){ st.textContent = 'Open this from your GitHub Pages URL first.'; return; }
-  if (pw.length < 10){ st.textContent = 'Use a password of at least 10 characters.'; return; }
-  st.textContent = 'Encrypting…';
-  const blob = await lockToken(token, pw);
-  ADMIN = {...blob, owner:t.owner, repo:t.repo, branch:t.branch};
-  localStorage.setItem(GHKEY, JSON.stringify({owner:t.owner, repo:t.repo, branch:t.branch, token}));
-  st.textContent = 'Locked. Now press Publish to site to put it live.';
+  document.getElementById('gate-title').textContent = setup ? 'Set up publishing' : 'Admin sign-in';
+  document.getElementById('gate-sub').textContent = setup
+    ? `First time here. Paste the GitHub token and choose the password your admins will use. Publishes to ${t.owner||'?'}/${t.repo||'?'}.`
+    : `Enter the admin password to use this checklist on this device.`;
+  document.getElementById('gate-token-row').hidden = !setup;
+  document.getElementById('gate-go').textContent = setup ? 'Save and continue' : 'Unlock';
+  document.getElementById('gate-msg').textContent = '';
+  gate.hidden = false;
+  setTimeout(()=>document.getElementById(setup ? 'gate-token' : 'gate-pw').focus(), 50);
+}
+
+async function gateSubmit(){
+  const setup = !(ADMIN && ADMIN.ct);
+  const pw = document.getElementById('gate-pw').value;
+  const msg = document.getElementById('gate-msg');
+  const btn = document.getElementById('gate-go');
+  const t = target();
+
+  if (setup){
+    const token = document.getElementById('gate-token').value.trim();
+    if (!token){ msg.textContent = 'Paste the GitHub token.'; return; }
+    if (!t.owner || !t.repo){ msg.textContent = 'Open this page from your GitHub Pages address.'; return; }
+    if (pw.length < 8){ msg.textContent = 'Use a password of at least 8 characters.'; return; }
+    btn.disabled = true; btn.textContent = 'Saving…';
+    const blob = await lockToken(token, pw);
+    ADMIN = {...blob, owner:t.owner, repo:t.repo, branch:t.branch};
+    localStorage.setItem(GHKEY, JSON.stringify({owner:t.owner, repo:t.repo, branch:t.branch, token}));
+    btn.disabled = false; btn.textContent = 'Save and continue';
+    gate.hidden = true;
+    say('Set up. Press Publish to site once — that puts the locked token live for your other admins.');
+    return;
+  }
+
+  if (!pw){ msg.textContent = 'Enter the password.'; return; }
+  btn.disabled = true; btn.textContent = 'Checking…';
+  try {
+    const token = await unlockToken(ADMIN, pw);
+    localStorage.setItem(GHKEY, JSON.stringify({
+      owner:ADMIN.owner, repo:ADMIN.repo, branch:ADMIN.branch||'main', token
+    }));
+    gate.hidden = true;
+    say('Signed in on this device.');
+  } catch(e){
+    msg.textContent = 'Wrong password.';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Unlock';
+  }
+}
+
+document.getElementById('gate-go').addEventListener('click', gateSubmit);
+gate.addEventListener('keydown', e=>{ if (e.key === 'Enter') gateSubmit(); });
+
+document.getElementById('resetauth').addEventListener('click', e=>{
+  e.preventDefault();
+  if (!confirm('Forget the saved sign-in on this device?')) return;
+  try { localStorage.removeItem(GHKEY); } catch(err){}
+  openGate();
 });
 
 async function ensureToken(){
   const g = ghLoad();
-  if (g.token) return g;
-  if (!ADMIN || !ADMIN.ct) return null;
-  const pw = prompt('Admin password to publish:');
-  if (pw === null) return null;
-  try {
-    const token = await unlockToken(ADMIN, pw);
-    const cfg = {owner:ADMIN.owner, repo:ADMIN.repo, branch:ADMIN.branch||'main', token};
-    localStorage.setItem(GHKEY, JSON.stringify(cfg));
-    return cfg;
-  } catch(e){
-    say('Wrong password.');
-    return null;
-  }
+  return g.token ? g : null;
 }
 
-document.getElementById('gear').addEventListener('click',()=>{
-  const p = document.getElementById('ghpanel');
-  p.hidden = !p.hidden;
-  if (!p.hidden) ghFill();
-});
+
 document.getElementById('gh-save').addEventListener('click',()=>{
   const e = ghEls();
   localStorage.setItem(GHKEY, JSON.stringify({
@@ -937,11 +982,7 @@ document.getElementById('gh-save').addEventListener('click',()=>{
   }));
   document.getElementById('gh-status').textContent = 'Saved.';
 });
-document.getElementById('gh-forget').addEventListener('click',()=>{
-  localStorage.removeItem(GHKEY);
-  ghFill();
-  document.getElementById('gh-status').textContent = 'Cleared. You will be asked for the password next publish.';
-});
+
 
 function bakedHTML(){
   const doc = document.documentElement.cloneNode(true);
@@ -966,14 +1007,7 @@ const say = t => { document.getElementById('savestate').textContent = t; };
 
 document.getElementById('publish').addEventListener('click', async ()=>{
   const g = await ensureToken();
-  if (!g || !g.token || !g.owner || !g.repo){
-    if (!ADMIN || !ADMIN.ct){
-      say('No token set up yet — tap the gear.');
-      document.getElementById('ghpanel').hidden = false;
-      ghFill();
-    }
-    return;
-  }
+  if (!g || !g.token || !g.owner || !g.repo){ openGate(); return; }
   const btn = document.getElementById('publish');
   btn.disabled = true; btn.textContent = 'Publishing…';
   const url = `https://api.github.com/repos/${g.owner}/${g.repo}/contents/index.html`;
@@ -1086,6 +1120,8 @@ document.getElementById('xlsx').addEventListener('click',()=>{
 for (const t of ['bls','als','micu'])
   for (const cat of new Set(MODEL.filter(r=>r.tier===t).map(r=>r.cat)))
     collapsed.add(ckey(t, cat));
+
+if (!ghLoad().token) openGate();
 
 render();
 if (loadNote && !document.getElementById('savestate').textContent)
