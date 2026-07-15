@@ -186,7 +186,22 @@
   .fgrp:first-of-type{margin-left:0}
   .fmath{font-size:11.5px;color:var(--muted);margin:8px 0 0;padding-left:2px}
   .savestate{font-size:11.5px;color:var(--hoh,#1F7A4D);margin:4px 0 0;padding-left:2px;min-height:15px}
-  #savecopy{background:#1F7A4D;border-color:#1F7A4D}
+  #publish{background:#1F7A4D;border-color:#1F7A4D}
+  #gear{padding:7px 10px;font-size:14px;line-height:1}
+  #ghpanel{border:1px solid var(--rule);background:var(--panel);padding:12px 14px;margin:10px 0;
+    border-radius:3px;max-width:560px}
+  #ghpanel b{font-size:13px;display:block;margin-bottom:2px}
+  #ghpanel p{font-size:11.5px;color:var(--muted);margin:0 0 10px}
+  #ghpanel label{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:6px}
+  #ghpanel label input{flex:1;border:1px solid var(--rule);border-radius:2px;padding:6px 8px;
+    font:inherit;font-size:13px;background:#fff;min-width:0}
+  #ghpanel label{width:100%}
+  #ghpanel label:first-of-type{margin-top:2px}
+  #ghpanel label > span{width:56px}
+  .ghrow{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+  #gh-status{font-size:11.5px;color:var(--muted)}
+  .ghwarn{font-size:11px;color:#A3281C;background:#FDECEA;border-left:3px solid #A3281C;
+    padding:6px 8px;margin:10px 0 0 !important}
   .ckall{border:1px solid var(--rule);background:#fff;color:var(--muted);font-size:10px;
     font-weight:700;padding:2px 8px;margin-left:8px;letter-spacing:.04em;vertical-align:2px}
   .ckall:hover{border-color:var(--state);color:var(--state)}
@@ -198,7 +213,7 @@
   footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--rule);font-size:11.5px;color:var(--muted)}
 
   @media print{
-    .controls,.legend,.note-box,td.notes input,.addrow,td.del,.ckall,.fmath,.chev,.catcount,.savestate{display:none}
+    .controls,.legend,.note-box,td.notes input,.addrow,td.del,.ckall,.fmath,.chev,.catcount,.savestate,#ghpanel{display:none}
     .catwrap[hidden]{display:block !important}
     h3.cat{display:block;cursor:auto}
     .subs{gap:3px 8px}
@@ -247,7 +262,8 @@
   <button class="filt fc" data-f="conly">City only</button>
   <div class="spacer"></div>
   <input type="search" id="q" placeholder="Search equipment…">
-  <button class="act" id="savecopy">Save my copy</button>
+  <button class="act" id="publish">Publish to site</button>
+  <button class="act ghost" id="gear" title="Publish settings" aria-label="Publish settings">⚙</button>
   <button class="act ghost" id="foldall">Collapse all</button>
   <button class="act ghost" id="edit">Edit list</button>
   <button class="act" id="xlsx">Download Excel</button>
@@ -261,9 +277,26 @@
 
 <p class="fmath" id="fmath"></p>
 <p class="savestate" id="savestate"></p>
+
+<div id="ghpanel" hidden>
+  <b>Publish settings</b>
+  <p>Stored in this browser only. Never written into the file, never published.</p>
+  <label>Owner <input id="gh-owner" placeholder="1josepheber-beep" autocapitalize="off" spellcheck="false"></label>
+  <label>Repo <input id="gh-repo" placeholder="ambulance-equipment" autocapitalize="off" spellcheck="false"></label>
+  <label>Branch <input id="gh-branch" placeholder="main" autocapitalize="off" spellcheck="false"></label>
+  <label>Token <input id="gh-token" type="password" placeholder="github_pat_..." autocapitalize="off" spellcheck="false"></label>
+  <label>Shared password <input id="gh-pw" type="password" placeholder="what admins will type" autocapitalize="off" spellcheck="false"></label>
+  <div class="ghrow">
+    <button class="act" id="gh-lock">Lock token with password</button>
+    <button class="act ghost" id="gh-forget">Forget on this device</button>
+    <span id="gh-status"></span>
+  </div>
+  <p class="ghwarn">Lock the token, then press Publish once. That puts the encrypted token on the site. After that any admin can publish by typing the password — nothing to install. Use a long password: it is the only thing protecting the token. Changing it means locking again and republishing.</p>
+</div>
 <div id="list"></div>
 <div id="protocol" aria-hidden="true"></div>
 <script id="saved-state" type="application/json">null</script>
+<script id="admin-key" type="application/json">null</script>
 
 <footer>
   Sources: 25 TAC §157.11 (current through Reg. 50 No. 26, Jun 27 2025) and Houston Health Department EMS Program, "Minimum Equipment for Ambulances," Ver 9.16.25. Reference column: Hatzalah of Houston Medical Protocols §9.03, Lars Thestrup MD, eff. 12/20/2024. Working aid, not a legal opinion — the controlling documents are the rule, the current HHD sheet, and your medical director's signed equipment list. State §157.11(c)(7)(R) also points to an equipment checklist on the DSHS provider application, which is not reflected here.
@@ -488,33 +521,36 @@ function buildDefault(){
   return out;
 }
 
-let MODEL = buildDefault();
-let seq = MODEL.length;
-let savedFrom = 'built-in list';
-
-// (a) state baked into this file by a previous "Save my copy"
-try {
-  const baked = JSON.parse(document.getElementById('saved-state').textContent);
-  if (baked && baked.rows && baked.rows.length){
-    MODEL = baked.rows;
-    seq = Math.max(...MODEL.map(r=>r.id));
-    savedFrom = 'this file, saved ' + (baked.savedAt || 'earlier');
-  }
-} catch(e){}
-
-// (b) newer unsaved work from this browser, if any
 const LSKEY = 'hoh-ambulance-equipment-v1';
-try {
-  const local = JSON.parse(localStorage.getItem(LSKEY) || 'null');
-  if (local && local.rows && local.rows.length){
-    MODEL = local.rows;
-    seq = Math.max(...MODEL.map(r=>r.id));
-    savedFrom = 'unsaved changes in this browser (' + (local.savedAt||'') + ')';
-  }
-} catch(e){}
+const ok = st => st && Array.isArray(st.rows) && st.rows.length;
+
+let baked = null, local = null;
+try { baked = JSON.parse(document.getElementById('saved-state').textContent); } catch(e){}
+try { local = JSON.parse(localStorage.getItem(LSKEY) || 'null'); } catch(e){}
+
+let MODEL, seq, loadNote = '';
+
+// Newest wins. A file published from another device beats stale local edits.
+if (ok(local) && ok(baked) && (local.t||0) <= (baked.t||0)){
+  try { localStorage.removeItem(LSKEY); } catch(e){}
+  local = null;
+  loadNote = 'Loaded the published version — it is newer than this browser\u2019s unsaved edits.';
+}
+
+if (ok(local)){
+  MODEL = local.rows;
+  loadNote = 'Unsaved edits from this browser, ' + (local.savedAt||'') + '. Save my copy to publish them.';
+} else if (ok(baked)){
+  MODEL = baked.rows;
+  loadNote = 'Published version, saved ' + (baked.savedAt||'earlier') + '.';
+} else {
+  MODEL = buildDefault();
+}
+seq = Math.max(0, ...MODEL.map(r=>r.id||0));
 
 function snapshot(){
-  return {savedAt: new Date().toLocaleString('en-US'), rows: MODEL};
+  const d = new Date();
+  return {savedAt: d.toLocaleString('en-US'), t: d.getTime(), rows: MODEL};
 }
 function autosave(){
   try {
@@ -797,18 +833,165 @@ function buildProtocol(){
   document.getElementById('protocol').innerHTML = h;
 }
 
-document.getElementById('savecopy').addEventListener('click',()=>{
+// ---------- publish to GitHub ----------
+const GHKEY = 'hoh-ambulance-gh-v1';
+const ghLoad = () => { try { return JSON.parse(localStorage.getItem(GHKEY)||'null') || {}; } catch(e){ return {}; } };
+const ghEls = () => ({
+  owner: document.getElementById('gh-owner'),
+  repo: document.getElementById('gh-repo'),
+  branch: document.getElementById('gh-branch'),
+  token: document.getElementById('gh-token')
+});
+
+function ghFill(){
+  const g = ghLoad(), e = ghEls();
+  e.owner.value = g.owner || '';
+  e.repo.value = g.repo || '';
+  e.branch.value = g.branch || 'main';
+  e.token.value = g.token || '';
+  document.getElementById('gh-status').textContent = g.token ? 'Token saved in this browser.' : 'No token yet.';
+}
+
+const enc = new TextEncoder(), dec = new TextDecoder();
+const bufB64 = b => btoa(String.fromCharCode(...new Uint8Array(b)));
+const b64Buf = x => Uint8Array.from(atob(x), c=>c.charCodeAt(0));
+
+async function keyFrom(pw, salt){
+  const base = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    {name:'PBKDF2', salt, iterations:250000, hash:'SHA-256'},
+    base, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+}
+async function lockToken(token, pw){
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await keyFrom(pw, salt);
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, enc.encode(token));
+  return {salt: bufB64(salt), iv: bufB64(iv), ct: bufB64(ct)};
+}
+async function unlockToken(blob, pw){
+  const key = await keyFrom(pw, b64Buf(blob.salt));
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:b64Buf(blob.iv)}, key, b64Buf(blob.ct));
+  return dec.decode(pt);
+}
+
+let ADMIN = null;
+try { ADMIN = JSON.parse(document.getElementById('admin-key').textContent); } catch(e){}
+
+document.getElementById('gh-lock').addEventListener('click', async ()=>{
+  const e = ghEls();
+  const token = e.token.value.trim(), pw = document.getElementById('gh-pw').value;
+  const st = document.getElementById('gh-status');
+  if (!token || !e.owner.value.trim() || !e.repo.value.trim()){ st.textContent = 'Owner, repo and token are all needed.'; return; }
+  if (pw.length < 10){ st.textContent = 'Use a password of at least 10 characters.'; return; }
+  st.textContent = 'Encrypting…';
+  const blob = await lockToken(token, pw);
+  ADMIN = {...blob, owner:e.owner.value.trim(), repo:e.repo.value.trim(), branch:(e.branch.value.trim()||'main')};
+  localStorage.setItem(GHKEY, JSON.stringify({
+    owner:ADMIN.owner, repo:ADMIN.repo, branch:ADMIN.branch, token
+  }));
+  st.textContent = 'Locked. Now press Publish to site to put it live.';
+});
+
+async function ensureToken(){
+  const g = ghLoad();
+  if (g.token) return g;
+  if (!ADMIN || !ADMIN.ct) return null;
+  const pw = prompt('Admin password to publish:');
+  if (pw === null) return null;
+  try {
+    const token = await unlockToken(ADMIN, pw);
+    const cfg = {owner:ADMIN.owner, repo:ADMIN.repo, branch:ADMIN.branch||'main', token};
+    localStorage.setItem(GHKEY, JSON.stringify(cfg));
+    return cfg;
+  } catch(e){
+    say('Wrong password.');
+    return null;
+  }
+}
+
+document.getElementById('gear').addEventListener('click',()=>{
+  const p = document.getElementById('ghpanel');
+  p.hidden = !p.hidden;
+  if (!p.hidden) ghFill();
+});
+document.getElementById('gh-save').addEventListener('click',()=>{
+  const e = ghEls();
+  localStorage.setItem(GHKEY, JSON.stringify({
+    owner: e.owner.value.trim(), repo: e.repo.value.trim(),
+    branch: (e.branch.value.trim()||'main'), token: e.token.value.trim()
+  }));
+  document.getElementById('gh-status').textContent = 'Saved.';
+});
+document.getElementById('gh-forget').addEventListener('click',()=>{
+  localStorage.removeItem(GHKEY);
+  ghFill();
+  document.getElementById('gh-status').textContent = 'Cleared. You will be asked for the password next publish.';
+});
+
+function bakedHTML(){
   const doc = document.documentElement.cloneNode(true);
   doc.querySelector('#list').innerHTML = '';
   doc.querySelector('#protocol').innerHTML = '';
+  doc.querySelector('#ghpanel').hidden = true;
+  doc.querySelectorAll('#gh-owner,#gh-repo,#gh-branch,#gh-token').forEach(i=>i.removeAttribute('value'));
   doc.querySelector('#saved-state').textContent = JSON.stringify(snapshot());
-  const html = '<!DOCTYPE html>\n' + doc.outerHTML;
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([html], {type:'text/html'}));
-  a.download = 'index.html';
-  a.click();
-  try { localStorage.removeItem(LSKEY); } catch(e){}
-  document.getElementById('savestate').textContent = 'Saved to file — replace your copy with the download';
+  doc.querySelector('#admin-key').textContent = JSON.stringify(ADMIN);
+  return '<!DOCTYPE html>\n' + doc.outerHTML;
+}
+
+function b64(str){
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  const chunk = 0x8000;
+  for (let i=0; i<bytes.length; i+=chunk) bin += String.fromCharCode.apply(null, bytes.subarray(i, i+chunk));
+  return btoa(bin);
+}
+
+const say = t => { document.getElementById('savestate').textContent = t; };
+
+document.getElementById('publish').addEventListener('click', async ()=>{
+  const g = await ensureToken();
+  if (!g || !g.token || !g.owner || !g.repo){
+    if (!ADMIN || !ADMIN.ct){
+      say('No token set up yet — tap the gear.');
+      document.getElementById('ghpanel').hidden = false;
+      ghFill();
+    }
+    return;
+  }
+  const btn = document.getElementById('publish');
+  btn.disabled = true; btn.textContent = 'Publishing…';
+  const url = `https://api.github.com/repos/${g.owner}/${g.repo}/contents/index.html`;
+  const hdr = {Authorization:'Bearer '+g.token, Accept:'application/vnd.github+json'};
+  try {
+    let sha;
+    const cur = await fetch(`${url}?ref=${encodeURIComponent(g.branch||'main')}`, {headers:hdr});
+    if (cur.ok) sha = (await cur.json()).sha;
+    else if (cur.status !== 404) throw new Error('Could not read the file: ' + cur.status);
+
+    const res = await fetch(url, {
+      method:'PUT', headers:{...hdr,'Content-Type':'application/json'},
+      body: JSON.stringify({
+        message: 'Update equipment list — ' + new Date().toLocaleString('en-US'),
+        content: b64(bakedHTML()),
+        branch: g.branch || 'main',
+        ...(sha ? {sha} : {})
+      })
+    });
+    if (!res.ok){
+      const j = await res.json().catch(()=>({}));
+      throw new Error((j.message || res.status) + '');
+    }
+    try { localStorage.removeItem(LSKEY); } catch(e){}
+    say('Published. The site updates in about a minute — reload then.');
+  } catch(err){
+    const m = String(err.message||err);
+    say('Publish failed: ' + m + (/Bad credentials|401/.test(m) ? ' — check the token.' :
+        /404|Not Found/.test(m) ? ' — check owner/repo, and that the token can reach this repo.' : ''));
+  } finally {
+    btn.disabled = false; btn.textContent = 'Publish to site';
+  }
 });
 
 document.getElementById('revert').addEventListener('click',()=>{
@@ -891,6 +1074,8 @@ for (const t of ['bls','als','micu'])
     collapsed.add(ckey(t, cat));
 
 render();
+if (loadNote && !document.getElementById('savestate').textContent)
+  document.getElementById('savestate').textContent = loadNote;
 </script>
 </body>
 </html>
