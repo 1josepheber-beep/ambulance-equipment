@@ -215,6 +215,8 @@
   .gatemsg{font-size:12px;margin:10px 0 0 !important;min-height:16px;color:#A3281C}
   .gatefoot{font-size:11px;margin:10px 0 0 !important;color:var(--muted)}
   #resetauth{color:var(--muted)}
+  .gatealt{font-size:11.5px;margin:8px 0 0 !important}
+  .gatealt a{color:var(--state)}
   .ghwarn{font-size:11px;color:#A3281C;background:#FDECEA;border-left:3px solid #A3281C;
     padding:6px 8px;margin:10px 0 0 !important}
   .ckall{border:1px solid var(--rule);background:#fff;color:var(--muted);font-size:10px;
@@ -256,6 +258,7 @@
     </label>
     <button class="act" id="gate-go">Continue</button>
     <p class="gatemsg" id="gate-msg"></p>
+    <p class="gatealt"><a href="#" id="gate-usetoken">Forgot it? Use the GitHub token instead</a></p>
     <p class="gatefoot">This device will be remembered. You will not be asked again.</p>
   </div>
 </div>
@@ -906,8 +909,10 @@ async function unlockToken(blob, pw){
 
 const gate = document.getElementById('gate');
 
+let forceSetup = false;
+
 function openGate(){
-  const setup = !(ADMIN && ADMIN.ct);
+  const setup = forceSetup || !(ADMIN && ADMIN.ct);
   const t = target();
   document.getElementById('gate-title').textContent = setup ? 'Set up publishing' : 'Admin sign-in';
   document.getElementById('gate-sub').textContent = setup
@@ -916,12 +921,16 @@ function openGate(){
   document.getElementById('gate-token-row').hidden = !setup;
   document.getElementById('gate-go').textContent = setup ? 'Save and continue' : 'Unlock';
   document.getElementById('gate-msg').textContent = '';
+  document.getElementById('gate-usetoken').parentElement.hidden = setup || !(ADMIN && ADMIN.ct);
+  if (forceSetup)
+    document.getElementById('gate-sub').textContent =
+      'Paste the token and set a new password. This replaces the old one for everybody — press Publish to site straight after.';
   gate.hidden = false;
   setTimeout(()=>document.getElementById(setup ? 'gate-token' : 'gate-pw').focus(), 50);
 }
 
 async function gateSubmit(){
-  const setup = !(ADMIN && ADMIN.ct);
+  const setup = forceSetup || !(ADMIN && ADMIN.ct);
   const pw = document.getElementById('gate-pw').value;
   const msg = document.getElementById('gate-msg');
   const btn = document.getElementById('gate-go');
@@ -937,6 +946,7 @@ async function gateSubmit(){
     ADMIN = {...blob, owner:t.owner, repo:t.repo, branch:t.branch};
     localStorage.setItem(GHKEY, JSON.stringify({owner:t.owner, repo:t.repo, branch:t.branch, token}));
     btn.disabled = false; btn.textContent = 'Save and continue';
+    forceSetup = false;
     gate.hidden = true;
     say('Set up. Press Publish to site once — that puts the locked token live for your other admins.');
     return;
@@ -952,11 +962,17 @@ async function gateSubmit(){
     gate.hidden = true;
     say('Signed in on this device.');
   } catch(e){
-    msg.textContent = 'Wrong password.';
+    msg.textContent = 'Wrong password for the version of the file now on the site.';
   } finally {
     btn.disabled = false; btn.textContent = 'Unlock';
   }
 }
+
+document.getElementById('gate-usetoken').addEventListener('click', e=>{
+  e.preventDefault();
+  forceSetup = true;
+  openGate();
+});
 
 document.getElementById('gate-go').addEventListener('click', gateSubmit);
 gate.addEventListener('keydown', e=>{ if (e.key === 'Enter') gateSubmit(); });
