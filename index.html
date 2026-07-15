@@ -594,7 +594,7 @@ function autosave(){
     if (el) el.textContent = 'Changes saved in this browser';
   } catch(e){
     const el = document.getElementById('savestate');
-    if (el) el.textContent = 'Cannot auto-save here — use Save my copy';
+    if (el) el.textContent = 'This browser blocks storage — changes last until you close the tab. Publish to keep them.';
   }
 }
 
@@ -871,7 +871,18 @@ function buildProtocol(){
 // ---------- publish to GitHub ----------
 const GHKEY = 'hoh-ambulance-gh-v1';
 
-const ghLoad = () => { try { return JSON.parse(localStorage.getItem(GHKEY)||'null') || {}; } catch(e){ return {}; } };
+let MEMGH = null;
+let STORAGE_OK = true;
+const ghLoad = () => {
+  if (MEMGH) return MEMGH;
+  try { return JSON.parse(localStorage.getItem(GHKEY)||'null') || {}; } catch(e){ return {}; }
+};
+function ghStore(cfg){
+  MEMGH = cfg;
+  try { localStorage.setItem(GHKEY, JSON.stringify(cfg)); STORAGE_OK = true; }
+  catch(e){ STORAGE_OK = false; }
+  return STORAGE_OK;
+}
 
 // Work out owner/repo from the GitHub Pages URL: owner.github.io/repo/
 function ghGuess(){
@@ -908,15 +919,20 @@ function openGate(){
 }
 
 function gateSubmit(){
-  const token = document.getElementById('gate-token').value.trim();
   const msg = document.getElementById('gate-msg');
-  msg.textContent = 'Working…';
-  const t = target();
-  if (!token){ msg.textContent = 'Paste the GitHub token.'; return; }
-  if (!t.owner || !t.repo){ msg.textContent = 'Open this page from your GitHub Pages address.'; return; }
-  localStorage.setItem(GHKEY, JSON.stringify({owner:t.owner, repo:t.repo, branch:t.branch, token}));
-  gate.hidden = true;
-  say('Signed in on this device.');
+  try {
+    const token = document.getElementById('gate-token').value.trim();
+    msg.textContent = 'Working…';
+    const t = target();
+    if (!token){ msg.textContent = 'Paste the GitHub token.'; return; }
+    if (!t.owner || !t.repo){ msg.textContent = 'Open this page from your GitHub Pages address.'; return; }
+    const kept = ghStore({owner:t.owner, repo:t.repo, branch:t.branch, token});
+    gate.hidden = true;
+    say(kept ? 'Signed in on this device.'
+             : 'Signed in for now. This browser blocks storage, so you will be asked again next visit.');
+  } catch(err){
+    msg.textContent = 'Sign-in failed: ' + ((err && err.message) || err);
+  }
 }
 
 document.getElementById('gate-go').addEventListener('click', gateSubmit);
@@ -925,6 +941,7 @@ gate.addEventListener('keydown', e=>{ if (e.key === 'Enter') gateSubmit(); });
 document.getElementById('resetauth').addEventListener('click', e=>{
   e.preventDefault();
   if (!confirm('Forget the saved token on this device?')) return;
+  MEMGH = null;
   try { localStorage.removeItem(GHKEY); } catch(err){}
   openGate();
 });
@@ -959,6 +976,7 @@ function b64(str){
 const say = t => { document.getElementById('savestate').textContent = t; };
 
 document.getElementById('publish').addEventListener('click', async ()=>{
+  say('Publishing…');
   const g = await ensureToken();
   if (!g || !g.token || !g.owner || !g.repo){ openGate(); return; }
   const btn = document.getElementById('publish');
