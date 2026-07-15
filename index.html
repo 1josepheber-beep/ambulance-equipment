@@ -200,6 +200,7 @@
   #ghpanel label > span{width:56px}
   .ghrow{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
   #gh-status{font-size:11.5px;color:var(--muted)}
+  .ghwhere{font-size:11px !important;color:var(--muted);margin:2px 0 0 !important}
   .ghwarn{font-size:11px;color:#A3281C;background:#FDECEA;border-left:3px solid #A3281C;
     padding:6px 8px;margin:10px 0 0 !important}
   .ckall{border:1px solid var(--rule);background:#fff;color:var(--muted);font-size:10px;
@@ -280,12 +281,10 @@
 
 <div id="ghpanel" hidden>
   <b>Publish settings</b>
-  <p>Stored in this browser only. Never written into the file, never published.</p>
-  <label>Owner <input id="gh-owner" placeholder="1josepheber-beep" autocapitalize="off" spellcheck="false"></label>
-  <label>Repo <input id="gh-repo" placeholder="ambulance-equipment" autocapitalize="off" spellcheck="false"></label>
-  <label>Branch <input id="gh-branch" placeholder="main" autocapitalize="off" spellcheck="false"></label>
-  <label>Token <input id="gh-token" type="password" placeholder="github_pat_..." autocapitalize="off" spellcheck="false"></label>
+  <p>The token stays in this browser. Only its encrypted form is published.</p>
+  <label>GitHub token <input id="gh-token" type="password" placeholder="github_pat_..." autocapitalize="off" spellcheck="false"></label>
   <label>Shared password <input id="gh-pw" type="password" placeholder="what admins will type" autocapitalize="off" spellcheck="false"></label>
+  <p class="ghwhere" id="gh-where"></p>
   <div class="ghrow">
     <button class="act" id="gh-lock">Lock token with password</button>
     <button class="act ghost" id="gh-forget">Forget on this device</button>
@@ -835,21 +834,39 @@ function buildProtocol(){
 
 // ---------- publish to GitHub ----------
 const GHKEY = 'hoh-ambulance-gh-v1';
+let ADMIN = null;
+try { ADMIN = JSON.parse(document.getElementById('admin-key').textContent); } catch(e){}
 const ghLoad = () => { try { return JSON.parse(localStorage.getItem(GHKEY)||'null') || {}; } catch(e){ return {}; } };
-const ghEls = () => ({
-  owner: document.getElementById('gh-owner'),
-  repo: document.getElementById('gh-repo'),
-  branch: document.getElementById('gh-branch'),
-  token: document.getElementById('gh-token')
-});
+const ghEls = () => ({ token: document.getElementById('gh-token') });
+
+// Work out owner/repo from the GitHub Pages URL: owner.github.io/repo/
+function ghGuess(){
+  const h = location.hostname || '';
+  const m = /^([^.]+)\.github\.io$/i.exec(h);
+  if (!m) return {};
+  const owner = m[1];
+  const seg = (location.pathname || '/').split('/').filter(Boolean);
+  const repo = seg.length ? seg[0] : owner + '.github.io';
+  return {owner, repo};
+}
+
+function target(){
+  const g = ghLoad(), a = ADMIN || {}, guess = ghGuess();
+  return {
+    owner: g.owner || a.owner || guess.owner || '',
+    repo:  g.repo  || a.repo  || guess.repo  || '',
+    branch: g.branch || a.branch || 'main'
+  };
+}
 
 function ghFill(){
-  const g = ghLoad(), e = ghEls();
-  e.owner.value = g.owner || '';
-  e.repo.value = g.repo || '';
-  e.branch.value = g.branch || 'main';
-  e.token.value = g.token || '';
-  document.getElementById('gh-status').textContent = g.token ? 'Token saved in this browser.' : 'No token yet.';
+  const g = ghLoad(), a = ADMIN || {}, t = target();
+  document.getElementById('gh-token').value = g.token || '';
+  document.getElementById('gh-status').textContent = g.token ? 'Token available on this device.'
+    : (a.ct ? 'Token is locked — Publish asks for the password.' : 'No token yet.');
+  document.getElementById('gh-where').textContent = t.owner && t.repo
+    ? `Publishes to ${t.owner}/${t.repo} (${t.branch}) — read from the site address.`
+    : 'Open this from your GitHub Pages URL so it can work out the repo.';
 }
 
 const enc = new TextEncoder(), dec = new TextDecoder();
@@ -875,21 +892,18 @@ async function unlockToken(blob, pw){
   return dec.decode(pt);
 }
 
-let ADMIN = null;
-try { ADMIN = JSON.parse(document.getElementById('admin-key').textContent); } catch(e){}
-
 document.getElementById('gh-lock').addEventListener('click', async ()=>{
-  const e = ghEls();
-  const token = e.token.value.trim(), pw = document.getElementById('gh-pw').value;
+  const t = target();
+  const token = document.getElementById('gh-token').value.trim();
+  const pw = document.getElementById('gh-pw').value;
   const st = document.getElementById('gh-status');
-  if (!token || !e.owner.value.trim() || !e.repo.value.trim()){ st.textContent = 'Owner, repo and token are all needed.'; return; }
+  if (!token){ st.textContent = 'Paste your token first.'; return; }
+  if (!t.owner || !t.repo){ st.textContent = 'Open this from your GitHub Pages URL first.'; return; }
   if (pw.length < 10){ st.textContent = 'Use a password of at least 10 characters.'; return; }
   st.textContent = 'Encrypting…';
   const blob = await lockToken(token, pw);
-  ADMIN = {...blob, owner:e.owner.value.trim(), repo:e.repo.value.trim(), branch:(e.branch.value.trim()||'main')};
-  localStorage.setItem(GHKEY, JSON.stringify({
-    owner:ADMIN.owner, repo:ADMIN.repo, branch:ADMIN.branch, token
-  }));
+  ADMIN = {...blob, owner:t.owner, repo:t.repo, branch:t.branch};
+  localStorage.setItem(GHKEY, JSON.stringify({owner:t.owner, repo:t.repo, branch:t.branch, token}));
   st.textContent = 'Locked. Now press Publish to site to put it live.';
 });
 
