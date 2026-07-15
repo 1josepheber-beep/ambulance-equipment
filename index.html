@@ -882,6 +882,9 @@ function target(){
 
 
 
+const CRYPTO_MSG = 'Passwords need a secure page. Open your https:// GitHub Pages address, not the file on your computer.';
+const secureOK = () => !!(window.crypto && window.crypto.subtle);
+
 const enc = new TextEncoder(), dec = new TextDecoder();
 const bufB64 = b => btoa(String.fromCharCode(...new Uint8Array(b)));
 const b64Buf = x => Uint8Array.from(atob(x), c=>c.charCodeAt(0));
@@ -925,6 +928,7 @@ function openGate(){
   if (forceSetup)
     document.getElementById('gate-sub').textContent =
       'Paste the token and set a new password. This replaces the old one for everybody — press Publish to site straight after.';
+  if (!secureOK()) document.getElementById('gate-msg').textContent = CRYPTO_MSG;
   gate.hidden = false;
   setTimeout(()=>document.getElementById(setup ? 'gate-token' : 'gate-pw').focus(), 50);
 }
@@ -941,18 +945,26 @@ async function gateSubmit(){
     if (!token){ msg.textContent = 'Paste the GitHub token.'; return; }
     if (!t.owner || !t.repo){ msg.textContent = 'Open this page from your GitHub Pages address.'; return; }
     if (pw.length < 8){ msg.textContent = 'Use a password of at least 8 characters.'; return; }
+    if (!secureOK()){ msg.textContent = CRYPTO_MSG; return; }
     btn.disabled = true; btn.textContent = 'Saving…';
-    const blob = await lockToken(token, pw);
-    ADMIN = {...blob, owner:t.owner, repo:t.repo, branch:t.branch};
-    localStorage.setItem(GHKEY, JSON.stringify({owner:t.owner, repo:t.repo, branch:t.branch, token}));
-    btn.disabled = false; btn.textContent = 'Save and continue';
-    forceSetup = false;
-    gate.hidden = true;
-    say('Set up. Press Publish to site once — that puts the locked token live for your other admins.');
+    try {
+      const blob = await lockToken(token, pw);
+      ADMIN = {...blob, owner:t.owner, repo:t.repo, branch:t.branch};
+      localStorage.setItem(GHKEY, JSON.stringify({owner:t.owner, repo:t.repo, branch:t.branch, token}));
+      forceSetup = false;
+      gate.hidden = true;
+      say('Set up. Press Publish to site once — that puts the locked token live for your other admins.');
+    } catch(err){
+      msg.textContent = 'Could not save: ' + (err && err.message ? err.message : err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Save and continue';
+    }
     return;
   }
 
   if (!pw){ msg.textContent = 'Enter the password.'; return; }
+  if (!secureOK()){ msg.textContent = CRYPTO_MSG; return; }
   btn.disabled = true; btn.textContent = 'Checking…';
   try {
     const token = await unlockToken(ADMIN, pw);
