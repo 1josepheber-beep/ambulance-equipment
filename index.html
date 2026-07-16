@@ -319,7 +319,7 @@
 <body>
 <div id="errbar" hidden></div>
 <script>
-window.__BUILD__ = "b29 · 2026-07-16 02:37";
+window.__BUILD__ = "b30 · 2026-07-16 03:13";
 window.addEventListener('error', function(e){
   var b = document.getElementById('errbar');
   if (!b) return;
@@ -404,7 +404,7 @@ window.addEventListener('unhandledrejection', function(e){
 <script id="saved-state" type="application/json">null</script>
 
 <footer>
-  Build b29 · 2026-07-16 02:37· <a href="#" id="resetauth">Sign out of this device</a> ·
+  Build b30 · 2026-07-16 03:13· <a href="#" id="resetauth">Sign out of this device</a> ·
   Sources: 25 TAC §157.11 (current through Reg. 50 No. 26, Jun 27 2025) and Houston Health Department EMS Program, "Minimum Equipment for Ambulances," Ver 9.16.25. Reference column: Hatzalah of Houston Medical Protocols §9.03, Lars Thestrup MD, eff. 12/20/2024. Working aid, not a legal opinion — the controlling documents are the rule, the current HHD sheet, and your medical director's signed equipment list. State §157.11(c)(7)(R) also points to an equipment checklist on the DSHS provider application, which is not reflected here.
 </footer>
 
@@ -653,7 +653,22 @@ if (ok(local)){
   MODEL = buildDefault();
 }
 seq = Math.max(0, ...MODEL.map(r=>r.id||0));
-MODEL.forEach(r=>{ if (r.off === undefined) r.off = false; });
+
+// Normalise every row, whatever version of the file it was saved by.
+function fixRow(r){
+  if (!Array.isArray(r.subs)) r.subs = [];
+  r.subs = r.subs.filter(x => x && typeof x.label === 'string').map(x => ({label:x.label, have:!!x.have}));
+  if (typeof r.off !== 'boolean') r.off = false;
+  if (typeof r.have !== 'boolean') r.have = false;
+  if (typeof r.notes !== 'string') r.notes = '';
+  if (typeof r.note !== 'string') r.note = '';
+  if (typeof r.ours !== 'string') r.ours = '—';
+  if (typeof r.qty !== 'string') r.qty = String(r.qty ?? '');
+  if (!['s','c','sc'].includes(r.src)) r.src = 'c';
+  if (typeof r.added !== 'boolean') r.added = false;
+  return r;
+}
+MODEL.forEach(fixRow);
 
 function snapshot(){
   const d = new Date();
@@ -872,7 +887,8 @@ list.addEventListener('click', e=>{
     const {tier:t, cat} = e.target.dataset;
     const idx = MODEL.map(r=>r.cat===cat && r.tier===t).lastIndexOf(true);
     MODEL.splice(idx+1, 0, {id:++seq, tier:t, cat, name:'New item', qty:'1', src:'c',
-                            note:'', ours:'—', have:false, notes:'', added:true});
+                            note:'', ours:'—', have:false, notes:'', added:true, off:false,
+                            subs:[]});
     render(); autosave();
     const el = [...document.querySelectorAll('tr.row')].find(x=>+x.dataset.id===seq);
     if (el) el.querySelector('[data-k="name"]').select();
