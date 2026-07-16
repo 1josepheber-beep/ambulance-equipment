@@ -152,6 +152,36 @@
   tr.have .name{opacity:.5;text-decoration:line-through}
 
   #protocol{display:none}
+  #formdoc{display:none}
+
+  /* Inventory checklist form — mirrors the Hatzalah of Houston BLS form layout */
+  @media print{
+    body.form-mode header, body.form-mode .legend, body.form-mode .note-box,
+    body.form-mode .controls, body.form-mode #list, body.form-mode footer,
+    body.form-mode .fmath, body.form-mode .savestate, body.form-mode #protocol{display:none !important}
+    body.form-mode #formdoc{display:block}
+  }
+  #formdoc{font-family:Calibri,"Segoe UI",Arial,sans-serif;color:#000;font-size:8pt}
+  .fm-unit{page-break-after:always}
+  .fm-unit:last-child{page-break-after:auto}
+  .fm-title{font-size:11pt;font-weight:700;text-align:center;margin:0 0 2pt}
+  .fm-sub{font-size:7.5pt;text-align:center;color:#333;margin:0 0 6pt}
+  .fm-id{display:flex;gap:14pt;font-size:8pt;margin:0 0 7pt;border-bottom:1px solid #000;padding-bottom:5pt}
+  .fm-id span{white-space:nowrap}
+  .fm-cols{column-count:2;column-gap:16pt}
+  .fm-blk{break-inside:avoid;margin-bottom:7pt}
+  .fm-blk table{width:100%;border-collapse:collapse;table-layout:fixed}
+  .fm-blk th{background:#D9D9D9;border:0.5pt solid #000;font-size:7.5pt;font-weight:700;
+    text-align:left;padding:1.5pt 3pt;text-transform:uppercase}
+  .fm-blk th.q{width:26pt;text-align:center}
+  .fm-blk th.c{width:34%}
+  .fm-blk td{border:0.5pt solid #000;padding:1.5pt 3pt;font-size:7.5pt;line-height:1.25;vertical-align:top}
+  .fm-blk td.q{text-align:center;font-weight:600}
+  .fm-blk td.c{background:#fff}
+  .fm-src{font-size:5.5pt;color:#555;font-weight:700;margin-left:2pt;vertical-align:super}
+  .fm-sub-item{padding-left:8pt !important;color:#222}
+  .fm-sign{border-top:1px solid #000;margin-top:8pt;padding-top:6pt;font-size:8pt;line-height:2.3}
+  .fm-foot{font-size:6.5pt;color:#444;margin-top:5pt;text-align:right}
   .excl{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none}
   .excl input{cursor:pointer}
 
@@ -250,7 +280,7 @@
 <body>
 <div id="errbar" hidden></div>
 <script>
-window.__BUILD__ = "b17 · 2026-07-15";
+window.__BUILD__ = "b18 · 2026-07-16";
 window.addEventListener('error', function(e){
   var b = document.getElementById('errbar');
   if (!b) return;
@@ -316,6 +346,7 @@ window.addEventListener('unhandledrejection', function(e){
   <button class="act ghost" id="foldall">Collapse all</button>
   <button class="act ghost" id="edit">Edit list</button>
   <button class="act" id="xlsx">Download Excel</button>
+  <button class="act" id="formbtn">Download checklist form</button>
   <button class="act ghost" id="pdf">Save as PDF</button>
   <button class="act ghost" id="pdfchk">Print checklist</button>
   <label class="excl"><input type="checkbox" id="onlychk"> PDF: only what I checked</label>
@@ -330,10 +361,11 @@ window.addEventListener('unhandledrejection', function(e){
 
 <div id="list"></div>
 <div id="protocol" aria-hidden="true"></div>
+<div id="formdoc" aria-hidden="true"></div>
 <script id="saved-state" type="application/json">null</script>
 
 <footer>
-  Build b17 · 2026-07-15 · <a href="#" id="resetauth">Sign out of this device</a> ·
+  Build b18 · 2026-07-16 · <a href="#" id="resetauth">Sign out of this device</a> ·
   Sources: 25 TAC §157.11 (current through Reg. 50 No. 26, Jun 27 2025) and Houston Health Department EMS Program, "Minimum Equipment for Ambulances," Ver 9.16.25. Reference column: Hatzalah of Houston Medical Protocols §9.03, Lars Thestrup MD, eff. 12/20/2024. Working aid, not a legal opinion — the controlling documents are the rule, the current HHD sheet, and your medical director's signed equipment list. State §157.11(c)(7)(R) also points to an equipment checklist on the DSHS provider application, which is not reflected here.
 </footer>
 
@@ -1031,13 +1063,90 @@ document.getElementById('foldall').addEventListener('click',()=>{
   if (anyOpen) keys.forEach(k=>collapsed.add(k));
   render();
 });
+// ---------- Hatzalah inventory checklist form ----------
+const FM_TITLE = {bls:'BLS Ambulance Inventory Checklist',
+                  als:'ALS Ambulance Inventory Checklist',
+                  micu:'MICU Ambulance Inventory Checklist'};
+// categories whose contents expire
+const FM_EXP = new Set(['Medications','Oxygen & Suction','Cardiovascular Care','Vitals & Diagnostics',
+                        'Medication Delivery & Vascular Access','MICU equipment & medications',
+                        'Intubation & Airways','Safety Equipment']);
+
+function fmRows(r){
+  const out = [];
+  const qty = (r.qty && r.qty !== '—') ? r.qty : '';
+  const src = `<span class="fm-src">${r.src.toUpperCase()}</span>`;
+  if (r.subs.length && SPLIT.has(r.name)){
+    out.push({txt: esc(base(r.name)) + src, qty: '', head: true});
+    for (const sx of r.subs) out.push({txt: esc(sx.label), qty, sub: true});
+  } else if (r.subs.length){
+    out.push({txt: esc(r.name) + src, qty});
+    for (const sx of r.subs) out.push({txt: esc(sx.label), qty: '', sub: true});
+  } else {
+    out.push({txt: esc(r.name) + src, qty});
+  }
+  return out;
+}
+
+function buildForm(){
+  const tiers = (tier === 'all') ? ['bls','als','micu'] : [tier];
+  const today = new Date().toLocaleDateString('en-US');
+  let h = '';
+  for (const t of tiers){
+    const rows = MODEL.filter(r => r.tier === t);
+    if (!rows.length) continue;
+    h += `<div class="fm-unit">
+      <p class="fm-title">Hatzalah of Houston &ndash; ${FM_TITLE[t]}</p>
+      <p class="fm-sub">Minimum equipment required by 25 TAC &sect;157.11 (State of Texas)
+        and Houston Health Department Minimum Equipment for Ambulances Ver 9.16.25 (City of Houston).
+        Quantity shown is the higher of the two. <b>S</b> = state only, <b>C</b> = city only, <b>SC</b> = both.</p>
+      <div class="fm-id">
+        <span>Name ______________________________</span>
+        <span>Unit # __________</span>
+        <span>Inspection Date ______ / ______ / ______</span>
+      </div>
+      <div class="fm-cols">`;
+    for (const cat of new Set(rows.map(r=>r.cat))){
+      const items = rows.filter(r=>r.cat===cat);
+      if (!items.length) continue;
+      h += `<div class="fm-blk"><table><thead><tr>
+        <th>${esc(cat)}</th><th class="q">Qty</th>
+        <th class="c">${FM_EXP.has(cat) ? 'Exp Date / Comments' : 'Comments'}</th>
+      </tr></thead><tbody>`;
+      for (const r of items)
+        for (const line of fmRows(r))
+          h += `<tr><td${line.sub ? ' class="fm-sub-item"' : ''}>${line.txt}</td>
+                <td class="q">${line.qty}</td><td class="c">&nbsp;</td></tr>`;
+      h += `</tbody></table></div>`;
+    }
+    h += `</div>
+      <div class="fm-sign">
+        Inspected by: _______________________________________________ &nbsp;&nbsp; DATE: ____________________<br>
+        Lars Thestrup, MD: __________________________________________ &nbsp;&nbsp; DATE: ____________________
+      </div>
+      <p class="fm-foot">Generated ${today} from the current State + City requirements.</p>
+    </div>`;
+  }
+  document.getElementById('formdoc').innerHTML = h;
+}
+
+document.getElementById('formbtn').addEventListener('click',()=>{
+  buildForm();
+  document.body.classList.remove('protocol-mode');
+  document.body.classList.add('form-mode');
+  window.print();
+});
+window.addEventListener('afterprint',()=>document.body.classList.remove('form-mode'));
+
 document.getElementById('pdf').addEventListener('click',()=>{
   buildProtocol();
+  document.body.classList.remove('form-mode');
   document.body.classList.add('protocol-mode');
   window.print();
 });
 document.getElementById('pdfchk').addEventListener('click',()=>{
   document.body.classList.remove('protocol-mode');
+  document.body.classList.remove('form-mode');
   window.print();
 });
 window.addEventListener('afterprint',()=>document.body.classList.remove('protocol-mode'));
