@@ -94,13 +94,26 @@
   .e:focus{outline:none;border-color:var(--state);background:#F8FAFD}
   .e.wide{font-size:13.5px;font-weight:500}
   .e.small{font-size:11.5px;color:var(--muted);margin-top:3px}
-  td.del{width:30px}
+  td.del{width:74px;white-space:nowrap}
   .x{border:1px solid var(--rule);background:#fff;color:#A3281C;width:24px;height:24px;
      line-height:1;font-size:15px;font-weight:700;padding:0}
   .x:hover{background:#FDECEA;border-color:#A3281C}
   .addrow{border:1px dashed var(--rule);background:#fff;color:var(--muted);font-size:12px;
      padding:6px 12px;margin:6px 0 2px;width:100%;text-align:left}
   .addrow:hover{border-color:var(--state);color:var(--state)}
+  tr.row.off{background:repeating-linear-gradient(45deg,#FAFAFB,#FAFAFB 6px,#F2F3F5 6px,#F2F3F5 12px)}
+  tr.row.off td{color:#9AA2AC}
+  tr.row.off .name{color:#9AA2AC;font-style:italic;text-decoration:none}
+  tr.row.off .b{opacity:.35}
+  tr.row.off .subs{display:none}
+  .hidechip{font-size:9px;font-weight:800;letter-spacing:.06em;color:#6B7480;background:#E4E7EB;
+    border-radius:2px;padding:1px 5px;margin-left:6px;vertical-align:1px}
+  .eye{border:1px solid var(--rule);background:#fff;color:var(--muted);font-size:10px;
+    font-weight:700;padding:2px 6px;margin-right:4px}
+  .eye:hover{border-color:var(--state);color:var(--state)}
+  tr.row.off .eye{background:#E7F2E9;border-color:#BFD6C2;color:#2F6B3C}
+  @media print{ tr.row.off{display:none !important} }
+
   tr.added .name:before{content:"NEW ";font-size:9px;font-weight:800;color:#1F7A4D;letter-spacing:.06em}
   body.editing .gap{display:none}
 
@@ -280,7 +293,7 @@
 <body>
 <div id="errbar" hidden></div>
 <script>
-window.__BUILD__ = "b26 · 2026-07-16 01:58";
+window.__BUILD__ = "b27 · 2026-07-16 02:29";
 window.addEventListener('error', function(e){
   var b = document.getElementById('errbar');
   if (!b) return;
@@ -365,7 +378,7 @@ window.addEventListener('unhandledrejection', function(e){
 <script id="saved-state" type="application/json">null</script>
 
 <footer>
-  Build b26 · 2026-07-16 01:58· <a href="#" id="resetauth">Sign out of this device</a> ·
+  Build b27 · 2026-07-16 02:29· <a href="#" id="resetauth">Sign out of this device</a> ·
   Sources: 25 TAC §157.11 (current through Reg. 50 No. 26, Jun 27 2025) and Houston Health Department EMS Program, "Minimum Equipment for Ambulances," Ver 9.16.25. Reference column: Hatzalah of Houston Medical Protocols §9.03, Lars Thestrup MD, eff. 12/20/2024. Working aid, not a legal opinion — the controlling documents are the rule, the current HHD sheet, and your medical director's signed equipment list. State §157.11(c)(7)(R) also points to an equipment checklist on the DSHS provider application, which is not reflected here.
 </footer>
 
@@ -583,7 +596,7 @@ function buildDefault(){
     for (const [cat, items] of Object.entries(DATA[tier].cats))
       for (const [name, qty, src, note, ours] of items)
         out.push({id:++n, tier, cat, name, qty, src, note:note||'', ours:ours||'—',
-                  have:false, notes:'', added:false,
+                  have:false, notes:'', added:false, off:false,
                   subs:(SUBS[name]||[]).map(l=>({label:l, have:false}))});
   return out;
 }
@@ -614,6 +627,7 @@ if (ok(local)){
   MODEL = buildDefault();
 }
 seq = Math.max(0, ...MODEL.map(r=>r.id||0));
+MODEL.forEach(r=>{ if (r.off === undefined) r.off = false; });
 
 function snapshot(){
   const d = new Date();
@@ -699,11 +713,14 @@ function render(){
   const openCats = [...document.querySelectorAll('h3.cat:not(.shut)')].length;
   document.getElementById('foldall').textContent = openCats ? 'Collapse all' : 'Expand all';
   counts();
-  const pool = MODEL.filter(r=>tier==='all'||r.tier===tier);
+  const all = MODEL.filter(r=>tier==='all'||r.tier===tier);
+  const pool = all.filter(active);
+  const hid = all.length - pool.length;
   const n = f => pool.filter(r=>MATCH[f](r.src)).length;
   document.getElementById('fmath').textContent =
     `${pool.length} items = ${n('sonly')} state only + ${n('both')} required by both + ${n('conly')} city only. ` +
-    `"State" (${n('s')}) and "City" (${n('c')}) each include the ${n('both')} shared items.`;
+    `"State" (${n('s')}) and "City" (${n('c')}) each include the ${n('both')} shared items.` +
+    (hid ? ` ${hid} hidden — greyed out, not printed.` : '');
   document.getElementById('count').textContent = `${MODEL.filter(visible).length} shown`;
 }
 
@@ -711,7 +728,7 @@ function rowHTML(r){
   const only = r.src.length===1 ? ` only-${r.src}` : '';
   const badges = [...r.src].map(x=>`<span class="b ${x}" title="${SRC_NAME[x]}">${x.toUpperCase()}</span>`).join('');
   const gap = (!r.ours || r.ours==='—') ? '<span class="gap">GAP</span>' : '';
-  if (editing) return `<tr class="row edit" data-id="${r.id}">
+  if (editing) return `<tr class="row edit${r.off?' off':''}" data-id="${r.id}">
     <td class="chk"><input type="checkbox" class="have" ${r.have?'checked':''}></td>
     <td class="qty"><input class="e" data-k="qty" value="${esc(r.qty)}"></td>
     <td><input class="e wide" data-k="name" value="${esc(r.name)}">
@@ -722,12 +739,14 @@ function rowHTML(r){
     </select></td>
     <td class="ref"><input class="e small" data-k="ours" value="${esc(r.ours)}"></td>
     <td class="notes"><input class="nt" value="${esc(r.notes)}" placeholder="…"></td>
-    <td class="del"><button class="x" title="Delete row">×</button></td>
+    <td class="del">
+      <button class="eye" title="${r.off?'Show this item again':'Hide from lists and printouts'}">${r.off?'Show':'Hide'}</button>
+      <button class="x" title="Delete row permanently">×</button></td>
   </tr>`;
-  return `<tr class="row${only}${r.have?' have':''}${r.added?' added':''}" data-id="${r.id}">
-    <td class="chk"><input type="checkbox" class="have" ${r.have?'checked':''}></td>
+  return `<tr class="row${only}${r.have?' have':''}${r.added?' added':''}${r.off?' off':''}" data-id="${r.id}">
+    <td class="chk"><input type="checkbox" class="have" ${r.have?'checked':''} ${r.off?'disabled':''}></td>
     <td class="qty" data-l="Required">${esc(r.qty)}</td>
-    <td data-l="Item"><span class="name">${esc(r.name)}</span>${gap}${r.note?`<span class="sub-note">${esc(r.note)}</span>`:''}${subHTML(r)}</td>
+    <td data-l="Item"><span class="name">${esc(r.name)}</span>${r.off?'<span class="hidechip">HIDDEN</span>':gap}${r.note?`<span class="sub-note">${esc(r.note)}</span>`:''}${subHTML(r)}</td>
     <td class="src" data-l="Source">${badges}</td>
     <td class="ref" data-l="Our past list">${esc(r.ours)}</td>
     <td class="notes" data-l="Notes"><input class="nt" value="${esc(r.notes)}" placeholder="…"></td>
@@ -735,15 +754,16 @@ function rowHTML(r){
 }
 
 function counts(){
-  const pool = MODEL.filter(r=>tier==='all'||r.tier===tier);
+  const pool = MODEL.filter(r=>(tier==='all'||r.tier===tier) && active(r));
   document.querySelectorAll('.filt').forEach(b=>{
     if (!b.dataset.label) b.dataset.label=b.textContent.trim();
     b.textContent = `${b.dataset.label} (${pool.filter(r=>MATCH[b.dataset.f](r.src)).length})`;
   });
 }
 
+const active = r => !r.off;
 function scopeRows(t, cat){
-  return MODEL.filter(r => r.tier===t && (!cat || r.cat===cat) && visible(r));
+  return MODEL.filter(r => r.tier===t && (!cat || r.cat===cat) && visible(r) && active(r));
 }
 function setHave(r, v){
   r.have = v;
@@ -803,6 +823,13 @@ list.addEventListener('keydown', e=>{
 list.addEventListener('click', e=>{
   const h = e.target.closest('h3.cat');
   if (h && !e.target.classList.contains('ckall')){ toggleCat(h); return; }
+  if (e.target.classList.contains('eye')){
+    const r = get(e);
+    r.off = !r.off;
+    if (r.off) setHave(r, false);
+    render(); autosave();
+    return;
+  }
   if (e.target.classList.contains('x')){
     const r = get(e);
     if (confirm(`Delete "${r.name}"?`)){ MODEL = MODEL.filter(x=>x.id!==r.id); render(); autosave(); }
@@ -866,7 +893,7 @@ const base = n => n.split(' — ')[0].replace(/\s*\([^)]*\)\s*$/,'').trim();
 
 function protocolLines(t){
   const out = [];
-  for (const r of MODEL.filter(x=>x.tier===t)){
+  for (const r of MODEL.filter(x=>x.tier===t && active(x))){
     const qty = (r.qty && r.qty !== '—') ? ` (${r.qty})` : '';
     if (r.subs.length && SPLIT.has(r.name)){
       for (const sx of r.subs) out.push({txt:`${base(r.name)}, ${sx.label}${qty}`, src:r.src, have:sx.have});
@@ -1073,7 +1100,7 @@ const FM_TITLE = {bls:'BLS Ambulance Inventory Checklist',
 // (Exp Date/Comments dropped — every block just says Comments)
 
 function fmBlocks(t){
-  const rows = MODEL.filter(r => r.tier === t);
+  const rows = MODEL.filter(r => r.tier === t && active(r));
   const out = [];
   for (const cat of new Set(rows.map(r=>r.cat))){
     const items = rows.filter(r=>r.cat===cat);
@@ -1172,14 +1199,15 @@ function collect(t){
       "Detail": r.note,
       "Our Past List (§9.03)": r.ours,
       "Notes": r.notes,
-      "Added by us": r.added?"YES":""
+      "Added by us": r.added?"YES":"",
+      "Hidden": r.off?"YES":""
     });
     for (const sx of r.subs) out.push({
       "Have": sx.have?"YES":"",
       "Category": r.cat,
       "Item": "    \u21B3 " + sx.label,
       "Required Qty": "", "Required By": "", "Detail": "",
-      "Our Past List (§9.03)": "", "Notes": "", "Added by us": ""
+      "Our Past List (§9.03)": "", "Notes": "", "Added by us": "", "Hidden": ""
     });
   }
   return out;
@@ -1200,7 +1228,7 @@ document.getElementById('xlsx').addEventListener('click',()=>{
   const wb = XLSX.utils.book_new();
   for (const t of ['bls','als','micu']){
     const ws = XLSX.utils.json_to_sheet(collect(t));
-    ws['!cols']=[{wch:6},{wch:26},{wch:52},{wch:16},{wch:14},{wch:60},{wch:34},{wch:26},{wch:11}];
+    ws['!cols']=[{wch:6},{wch:26},{wch:52},{wch:16},{wch:14},{wch:60},{wch:34},{wch:26},{wch:11},{wch:8}];
     XLSX.utils.book_append_sheet(wb, ws, t.toUpperCase());
   }
   XLSX.writeFile(wb, 'ambulance-required-equipment.xlsx');
