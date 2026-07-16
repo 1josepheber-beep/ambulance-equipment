@@ -154,37 +154,85 @@
   #protocol{display:none}
   #formdoc{display:none}
 
-  /* Inventory checklist form — mirrors the Hatzalah of Houston BLS form layout */
+  /* Inventory checklist form — measured from the Hatzalah of Houston BLS form (12-6-22) */
   @media print{
     body.form-mode header, body.form-mode .legend, body.form-mode .note-box,
     body.form-mode .controls, body.form-mode #list, body.form-mode footer,
     body.form-mode .fmath, body.form-mode .savestate, body.form-mode #protocol{display:none !important}
     body.form-mode #formdoc{display:block}
-    @page{ size: letter; margin: 0.35in; }
+    @page{ size: letter portrait; margin: 0.55in 0.7in; }
   }
-  #formdoc{font-family:Calibri,"Segoe UI",Arial,sans-serif;color:#000}
+  #formdoc{font-family:Calibri,Carlito,"Segoe UI",Arial,sans-serif;color:#000}
   .fm-unit{page-break-after:always}
   .fm-unit:last-child{page-break-after:auto}
-  .fm-title{font-size:10pt;font-weight:700;text-align:center;margin:0 0 3pt}
-  .fm-id{font-size:7.5pt;margin:0 0 4pt}
+  .fm-title{font-size:12.2pt;font-weight:700;text-align:center;margin:0 0 6pt}
+  .fm-id{font-size:6.7pt;margin:0 0 5pt}
   .fm-grid{width:100%;border-collapse:collapse;table-layout:fixed}
-  .fm-grid > tbody > tr > td{width:50%;vertical-align:top;padding:0 4pt 0 0}
-  .fm-grid > tbody > tr > td + td{padding:0 0 0 4pt}
-  table.fm-blk{width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:5pt}
-  table.fm-blk th{background:#000;color:#fff;border:0.5pt solid #000;font-size:7pt;font-weight:700;
-    text-align:left;padding:0.5pt 2pt}
-  table.fm-blk th.q{width:22pt;text-align:center}
-  table.fm-blk th.c{width:38%}
-  table.fm-blk td{border:0.5pt solid #808080;padding:0.5pt 2pt;font-size:6.5pt;line-height:1.15;
-    vertical-align:top;height:9pt}
-  table.fm-blk td.q{text-align:center;font-weight:600}
-  .fm-src{font-size:5pt;color:#666;font-weight:700;margin-left:2pt;vertical-align:super}
-  .fm-sign{font-size:7.5pt;line-height:2;margin:5pt 0 0}
-  .fm-foot{font-size:6pt;color:#333;margin:3pt 0 0}
+  .fm-grid > tbody > tr > td{vertical-align:top;padding:0}
+  .fm-grid > tbody > tr > td.L{width:48.2%;padding-right:6pt}
+  .fm-grid > tbody > tr > td.R{width:51.8%}
+  table.fm-blk{width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:6pt}
+  table.fm-blk col.n{width:64%}
+  table.fm-blk col.q{width:7.8%}
+  table.fm-blk col.k{width:9.6%}
+  table.fm-blk col.c{width:18.6%}
+  table.fm-blk th{font-size:6.2pt;font-weight:700;text-align:left;padding:1pt 2pt;
+    border:0.5pt solid #E7E6E6;line-height:1.2}
+  table.fm-blk th.cat{background:#00B0F0;color:#fff;border-color:#00B0F0}
+  table.fm-blk th.blank{border-color:#fff}
+  table.fm-blk td{border:0.5pt solid #E7E6E6;padding:0.3pt 2pt;font-size:6.2pt;line-height:1.05;
+    vertical-align:top}
+  table.fm-blk td.q{text-align:center}
+  table.fm-blk td.k{text-align:center;font-family:"Segoe UI Symbol",Arial,sans-serif}
+  .fm-src{font-size:4.9pt;color:#666;font-weight:700;margin-left:2pt;vertical-align:super}
+  .fm-sign{font-size:6.7pt;line-height:2.6;margin:10pt 0 0}
+  .fm-foot{font-size:6.7pt;margin:6pt 0 0}
+
+  .ckall.on{background:#E7F2E9;border-color:#BFD6C2;color:#2F6B3C}
+  .tierck{background:transparent;border-color:#5A6472;color:#C9D0D8;vertical-align:3px}
+  .tierck:hover{background:#fff;border-color:#fff;color:var(--ink)}
+  .tierck.on{background:#2F6B3C;border-color:#2F6B3C;color:#fff}
+
+  /* Protocol-style PDF — mirrors HoH Medical Protocols §9.03 layout */
+  #protocol{font-family:"Times New Roman",Times,serif;color:#000}
+  .pr-head{margin-bottom:16pt}
+  .pr-head h1{font-family:inherit;font-size:15pt;font-weight:700;margin:0 0 6pt;letter-spacing:0}
+  .pr-head p{font-size:8.5pt;line-height:1.35;margin:0 0 3pt;color:#000}
+  .pr-key sup{font-weight:700}
+  .pr-sec{page-break-before:always}
+  .pr-sec:first-of-type{page-break-before:auto}
+  .pr-sec h2{font-family:inherit;font-size:11.5pt;font-weight:700;margin:0 0 6pt;
+    background:none;color:#000;padding:0;text-transform:none;letter-spacing:0;border:none}
+  .pr-lead{font-size:9pt;margin:0 0 8pt}
+  .pr-list{column-count:2;column-gap:26pt;list-style:none;margin:0;padding:0;font-size:9pt;line-height:1.5}
+  .pr-list li{break-inside:avoid;padding-left:9pt;text-indent:-9pt;margin-bottom:1pt}
+  .pr-list sup{font-size:6pt;font-weight:700;margin-left:2pt;color:#444}
+  .pr-foot{font-size:8pt;margin-top:14pt;padding-top:6pt;border-top:1px solid #000;
+    column-span:all;break-before:avoid}
+
+  .savestate{font-size:11.5px;color:#1F7A4D;margin:4px 0 0;padding-left:2px;min-height:15px}
+  .excl{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none}
+  .excl input{cursor:pointer}
+  #publish{background:#1F7A4D;border-color:#1F7A4D}
+  #formbtn{background:#143D75;border-color:#143D75}
+
+  @media print{
+    body.protocol-mode header,
+    body.protocol-mode .legend,
+    body.protocol-mode .note-box,
+    body.protocol-mode .controls,
+    body.protocol-mode #list,
+    body.protocol-mode .fmath,
+    body.protocol-mode .savestate,
+    body.protocol-mode #formdoc,
+    body.protocol-mode footer{display:none !important}
+    body.protocol-mode #protocol{display:block}
+  }
+
   footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--rule);font-size:11.5px;color:var(--muted)}
 
   @media print{
-    .controls,.legend,.note-box,td.notes input,.addrow,td.del,.ckall,.fmath,.chev,.catcount,.savestate,#ghpanel{display:none}
+    .controls,.legend,.note-box,td.notes input,.addrow,td.del,.ckall,.fmath,.chev,.catcount,.savestate{display:none}
     .catwrap[hidden]{display:block !important}
     h3.cat{display:block;cursor:auto}
     .subs{gap:3px 8px}
@@ -202,7 +250,7 @@
 <body>
 <div id="errbar" hidden></div>
 <script>
-window.__BUILD__ = "b18 · 2026-07-16";
+window.__BUILD__ = "b19 · 2026-07-16 01:17";
 window.addEventListener('error', function(e){
   var b = document.getElementById('errbar');
   if (!b) return;
@@ -287,7 +335,7 @@ window.addEventListener('unhandledrejection', function(e){
 <script id="saved-state" type="application/json">null</script>
 
 <footer>
-  Build b18 · 2026-07-16 · <a href="#" id="resetauth">Sign out of this device</a> ·
+  Build b19 · 2026-07-16 01:17 · <a href="#" id="resetauth">Sign out of this device</a> ·
   Sources: 25 TAC §157.11 (current through Reg. 50 No. 26, Jun 27 2025) and Houston Health Department EMS Program, "Minimum Equipment for Ambulances," Ver 9.16.25. Reference column: Hatzalah of Houston Medical Protocols §9.03, Lars Thestrup MD, eff. 12/20/2024. Working aid, not a legal opinion — the controlling documents are the rule, the current HHD sheet, and your medical director's signed equipment list. State §157.11(c)(7)(R) also points to an equipment checklist on the DSHS provider application, which is not reflected here.
 </footer>
 
@@ -986,6 +1034,9 @@ document.getElementById('foldall').addEventListener('click',()=>{
   render();
 });
 // ---------- Hatzalah inventory checklist form ----------
+// Layout measured from BLS_Ambulance_Checklist_-_Hatzalah_of_Houston__12-6-22_.pdf:
+// portrait letter, Calibri 6.7pt, two columns, per block: Name | Qty | tickbox | Comments,
+// category label on a #00B0F0 bar in white bold.
 const FM_TITLE = {bls:'BLS Ambulance Inventory Checklist',
                   als:'ALS Ambulance Inventory Checklist',
                   micu:'MICU Ambulance Inventory Checklist'};
@@ -993,23 +1044,16 @@ const FM_EXP = new Set(['Medications','Oxygen & Suction','Cardiovascular Care','
                         'Medication Delivery & Vascular Access','MICU equipment & medications',
                         'Intubation & Airways','Safety Equipment']);
 
-// one line per item, exactly like the Hatzalah form
-function fmLine(r){
-  const qty = (r.qty && r.qty !== '—') ? r.qty : '';
-  return {name: esc(r.name), src: r.src.toUpperCase(), qty};
-}
-
 function fmBlocks(t){
   const rows = MODEL.filter(r => r.tier === t);
   const out = [];
   for (const cat of new Set(rows.map(r=>r.cat))){
-    const items = rows.filter(r=>r.cat===cat).map(fmLine);
+    const items = rows.filter(r=>r.cat===cat);
     if (items.length) out.push({cat, items, exp: FM_EXP.has(cat)});
   }
   return out;
 }
 
-// balance blocks across two columns by line count, the way the Excel sheet does
 function fmSplit(blocks){
   const cost = b => b.items.length + 2;
   const total = blocks.reduce((n,b)=>n+cost(b), 0);
@@ -1023,13 +1067,18 @@ function fmSplit(blocks){
 }
 
 function fmBlockHTML(b){
-  let h = `<table class="fm-blk"><thead><tr>
-    <th>${esc(b.cat)}</th><th class="q">Qty</th>
-    <th class="c">${b.exp ? 'Exp Date/Comments' : 'Comments'}</th>
-  </tr></thead><tbody>`;
-  for (const it of b.items)
-    h += `<tr><td>${it.name}<span class="fm-src">${it.src}</span></td>
-          <td class="q">${it.qty}</td><td class="c">&nbsp;</td></tr>`;
+  let h = `<table class="fm-blk">
+    <colgroup><col class="n"><col class="q"><col class="k"><col class="c"></colgroup>
+    <thead><tr>
+      <th class="cat">${esc(b.cat)}</th>
+      <th>Qty</th><th class="blank"></th>
+      <th>${b.exp ? 'Exp Date/Comments' : 'Comments'}</th>
+    </tr></thead><tbody>`;
+  for (const r of b.items){
+    const qty = (r.qty && r.qty !== '—') ? esc(r.qty) : '';
+    h += `<tr><td>${esc(r.name)}<span class="fm-src">${r.src.toUpperCase()}</span></td>
+      <td class="q">${qty}</td><td class="k">&#9744;</td><td>&nbsp;</td></tr>`;
+  }
   return h + `</tbody></table>`;
 }
 
@@ -1043,15 +1092,17 @@ function buildForm(){
     const [L, R] = fmSplit(blocks);
     h += `<div class="fm-unit">
       <p class="fm-title">Hatzalah of Houston &ndash; ${FM_TITLE[t]}</p>
-      <p class="fm-id">Name______________________________&nbsp;&nbsp;Unit # __________&nbsp;&nbsp;Inspection Date _______/_______/_______</p>
+      <p class="fm-id">Name____________________________________&nbsp;&nbsp;Unit # __________&nbsp;&nbsp;Inspection Date _________/________/________</p>
       <table class="fm-grid"><tr>
-        <td>${L.map(fmBlockHTML).join('')}</td>
-        <td>${R.map(fmBlockHTML).join('')}</td>
+        <td class="L">${L.map(fmBlockHTML).join('')}</td>
+        <td class="R">${R.map(fmBlockHTML).join('')}</td>
       </tr></table>
-      <p class="fm-sign">Inspected by:__________________________________________________ DATE: __________________________<br>
-      Lars Thestrup, MD :_____________________________________________ DATE: __________________________</p>
-      <p class="fm-foot">State of Texas 25 TAC &sect;157.11 + City of Houston HHD Ver 9.16.25. Qty = higher of the two.
-        <b>S</b> state only &middot; <b>C</b> city only &middot; <b>SC</b> both. &nbsp; Generated ${today}</p>
+      <p class="fm-sign">
+        Inspected by:__________________________________________________ DATE: __________________________<br>
+        Lars Thestrup, MD :_____________________________________________ DATE: __________________________
+      </p>
+      <p class="fm-foot">Updated ${today} &nbsp;&middot;&nbsp; State 25 TAC &sect;157.11 + City of Houston HHD Ver 9.16.25; Qty is the higher of the two.
+        <b>S</b> state only &middot; <b>C</b> city only &middot; <b>SC</b> both.</p>
     </div>`;
   }
   document.getElementById('formdoc').innerHTML = h;
