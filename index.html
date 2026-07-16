@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ambulance Required Equipment — State + City Minimum</title>
@@ -159,105 +160,27 @@
     body.form-mode .controls, body.form-mode #list, body.form-mode footer,
     body.form-mode .fmath, body.form-mode .savestate, body.form-mode #protocol{display:none !important}
     body.form-mode #formdoc{display:block}
+    @page{ size: letter; margin: 0.35in; }
   }
-  #formdoc{font-family:Calibri,"Segoe UI",Arial,sans-serif;color:#000;font-size:8pt}
+  #formdoc{font-family:Calibri,"Segoe UI",Arial,sans-serif;color:#000}
   .fm-unit{page-break-after:always}
   .fm-unit:last-child{page-break-after:auto}
-  .fm-title{font-size:11pt;font-weight:700;text-align:center;margin:0 0 2pt}
-  .fm-sub{font-size:7.5pt;text-align:center;color:#333;margin:0 0 6pt}
-  .fm-id{display:flex;gap:14pt;font-size:8pt;margin:0 0 7pt;border-bottom:1px solid #000;padding-bottom:5pt}
-  .fm-id span{white-space:nowrap}
-  .fm-cols{column-count:2;column-gap:16pt}
-  .fm-blk{break-inside:avoid;margin-bottom:7pt}
-  .fm-blk table{width:100%;border-collapse:collapse;table-layout:fixed}
-  .fm-blk th{background:#D9D9D9;border:0.5pt solid #000;font-size:7.5pt;font-weight:700;
-    text-align:left;padding:1.5pt 3pt;text-transform:uppercase}
-  .fm-blk th.q{width:26pt;text-align:center}
-  .fm-blk th.c{width:34%}
-  .fm-blk td{border:0.5pt solid #000;padding:1.5pt 3pt;font-size:7.5pt;line-height:1.25;vertical-align:top}
-  .fm-blk td.q{text-align:center;font-weight:600}
-  .fm-blk td.c{background:#fff}
-  .fm-src{font-size:5.5pt;color:#555;font-weight:700;margin-left:2pt;vertical-align:super}
-  .fm-sub-item{padding-left:8pt !important;color:#222}
-  .fm-sign{border-top:1px solid #000;margin-top:8pt;padding-top:6pt;font-size:8pt;line-height:2.3}
-  .fm-foot{font-size:6.5pt;color:#444;margin-top:5pt;text-align:right}
-  .excl{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none}
-  .excl input{cursor:pointer}
-
-  /* Protocol-style PDF — mirrors HoH Medical Protocols §9.03 layout */
-  @media print{
-    body.protocol-mode header,
-    body.protocol-mode .legend,
-    body.protocol-mode .note-box,
-    body.protocol-mode .controls,
-    body.protocol-mode #list,
-    body.protocol-mode footer{display:none !important}
-    body.protocol-mode #protocol{display:block}
-  }
-  #protocol{font-family:"Times New Roman",Times,serif;color:#000}
-  .pr-head{margin-bottom:16pt}
-  .pr-head h1{font-family:inherit;font-size:15pt;font-weight:700;margin:0 0 6pt;letter-spacing:0}
-  .pr-head p{font-size:8.5pt;line-height:1.35;margin:0 0 3pt;color:#000}
-  .pr-key sup{font-weight:700}
-  .pr-sec{page-break-before:always}
-  .pr-sec:first-of-type{page-break-before:auto}
-  .pr-sec h2{font-family:inherit;font-size:11.5pt;font-weight:700;margin:0 0 6pt;
-    background:none;color:#000;padding:0;text-transform:none;letter-spacing:0;border:none}
-  .pr-lead{font-size:9pt;margin:0 0 8pt}
-  .pr-list{column-count:2;column-gap:26pt;list-style:none;margin:0;padding:0;font-size:9pt;line-height:1.5}
-  .pr-list li{break-inside:avoid;padding-left:9pt;text-indent:-9pt;margin-bottom:1pt}
-  .pr-list sup{font-size:6pt;font-weight:700;margin-left:2pt;color:#444}
-  .pr-foot{font-size:8pt;margin-top:14pt;padding-top:6pt;border-top:1px solid #000;
-    column-span:all;break-before:avoid}
-
-  .fgrp{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
-    font-weight:700;margin-left:6px}
-  .fgrp:first-of-type{margin-left:0}
-  .fmath{font-size:11.5px;color:var(--muted);margin:8px 0 0;padding-left:2px}
-  .savestate{font-size:11.5px;color:var(--hoh,#1F7A4D);margin:4px 0 0;padding-left:2px;min-height:15px}
-  #publish{background:#1F7A4D;border-color:#1F7A4D}
-  #gear{padding:7px 10px;font-size:14px;line-height:1}
-  #ghpanel{border:1px solid var(--rule);background:var(--panel);padding:12px 14px;margin:10px 0;
-    border-radius:3px;max-width:560px}
-  #ghpanel b{font-size:13px;display:block;margin-bottom:2px}
-  #ghpanel p{font-size:11.5px;color:var(--muted);margin:0 0 10px}
-  #ghpanel label{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:6px}
-  #ghpanel label input{flex:1;border:1px solid var(--rule);border-radius:2px;padding:6px 8px;
-    font:inherit;font-size:13px;background:#fff;min-width:0}
-  #ghpanel label{width:100%}
-  #ghpanel label:first-of-type{margin-top:2px}
-  #ghpanel label > span{width:56px}
-  .ghrow{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
-  #errbar{position:fixed;top:0;left:0;right:0;z-index:99;background:#A3281C;color:#fff;
-    font-size:12.5px;padding:8px 12px;line-height:1.4}
-  #gate{position:fixed;inset:0;background:rgba(20,24,31,.55);display:flex;align-items:center;
-    justify-content:center;padding:20px;z-index:50}
-  #gate[hidden],#errbar[hidden],.catwrap[hidden]{display:none !important}
-  .gatebox{background:#fff;border-radius:4px;padding:22px 22px 18px;max-width:380px;width:100%;
-    box-shadow:0 10px 40px rgba(0,0,0,.25)}
-  .gatebox h2{font-size:17px;margin:0 0 4px;letter-spacing:-0.01em}
-  .gatebox p{font-size:12.5px;color:var(--muted);margin:0 0 14px;line-height:1.45}
-  .gatebox label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.07em;
-    color:var(--muted);font-weight:700;margin-bottom:10px}
-  .gatebox label input{display:block;width:100%;margin-top:4px;border:1px solid var(--rule);
-    border-radius:2px;padding:9px 10px;font:inherit;font-size:15px;text-transform:none;letter-spacing:0}
-  .gatebox label input:focus{outline:none;border-color:var(--state);background:#F8FAFD}
-  #gate-go{width:100%;padding:10px;font-size:14px;margin-top:2px;background:#1F7A4D;border-color:#1F7A4D}
-  .gatemsg{font-size:12px;margin:10px 0 0 !important;min-height:16px;color:#A3281C}
-  .gatefoot{font-size:11px;margin:10px 0 0 !important;color:var(--muted)}
-  #resetauth{color:var(--muted)}
-  .gatealt{font-size:11.5px;margin:8px 0 0 !important}
-  .gatealt a{color:var(--state)}
-  .ghwarn{font-size:11px;color:#A3281C;background:#FDECEA;border-left:3px solid #A3281C;
-    padding:6px 8px;margin:10px 0 0 !important}
-  .ckall{border:1px solid var(--rule);background:#fff;color:var(--muted);font-size:10px;
-    font-weight:700;padding:2px 8px;margin-left:8px;letter-spacing:.04em;vertical-align:2px}
-  .ckall:hover{border-color:var(--state);color:var(--state)}
-  .ckall.on{background:#E7F2E9;border-color:#BFD6C2;color:#2F6B3C}
-  .tierck{background:transparent;border-color:#5A6472;color:#C9D0D8;vertical-align:3px}
-  .tierck:hover{background:#fff;border-color:#fff;color:var(--ink)}
-  .tierck.on{background:#2F6B3C;border-color:#2F6B3C;color:#fff}
-
+  .fm-title{font-size:10pt;font-weight:700;text-align:center;margin:0 0 3pt}
+  .fm-id{font-size:7.5pt;margin:0 0 4pt}
+  .fm-grid{width:100%;border-collapse:collapse;table-layout:fixed}
+  .fm-grid > tbody > tr > td{width:50%;vertical-align:top;padding:0 4pt 0 0}
+  .fm-grid > tbody > tr > td + td{padding:0 0 0 4pt}
+  table.fm-blk{width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:5pt}
+  table.fm-blk th{background:#000;color:#fff;border:0.5pt solid #000;font-size:7pt;font-weight:700;
+    text-align:left;padding:0.5pt 2pt}
+  table.fm-blk th.q{width:22pt;text-align:center}
+  table.fm-blk th.c{width:38%}
+  table.fm-blk td{border:0.5pt solid #808080;padding:0.5pt 2pt;font-size:6.5pt;line-height:1.15;
+    vertical-align:top;height:9pt}
+  table.fm-blk td.q{text-align:center;font-weight:600}
+  .fm-src{font-size:5pt;color:#666;font-weight:700;margin-left:2pt;vertical-align:super}
+  .fm-sign{font-size:7.5pt;line-height:2;margin:5pt 0 0}
+  .fm-foot{font-size:6pt;color:#333;margin:3pt 0 0}
   footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--rule);font-size:11.5px;color:var(--muted)}
 
   @media print{
@@ -276,8 +199,8 @@
   }
 </style>
 </head>
-<body class="editing">
-<div id="errbar" hidden=""></div>
+<body>
+<div id="errbar" hidden></div>
 <script>
 window.__BUILD__ = "b18 · 2026-07-16";
 window.addEventListener('error', function(e){
@@ -295,7 +218,7 @@ window.addEventListener('unhandledrejection', function(e){
 });
 </script>
 
-<div id="gate" hidden="">
+<div id="gate" hidden>
   <div class="gatebox">
     <h2>Admin sign-in</h2>
     <p id="gate-sub">Paste the GitHub token to use this checklist. This device will remember it — you will not be asked again.</p>
@@ -332,18 +255,18 @@ window.addEventListener('unhandledrejection', function(e){
   <button class="tab" data-tier="micu" aria-pressed="false">MICU</button>
   <span style="width:10px"></span>
   <span class="fgrp">Requires:</span>
-  <button class="filt fa" data-f="all" aria-pressed="true" data-label="All">All (109)</button>
-  <button class="filt fs" data-f="s" data-label="State" aria-pressed="false">State (56)</button>
-  <button class="filt fc" data-f="c" data-label="City" aria-pressed="false">City (103)</button>
+  <button class="filt fa" data-f="all" aria-pressed="true">All</button>
+  <button class="filt fs" data-f="s">State</button>
+  <button class="filt fc" data-f="c">City</button>
   <span class="fgrp">Overlap:</span>
-  <button class="filt fb" data-f="both" data-label="Both" aria-pressed="false">Both (50)</button>
-  <button class="filt fs" data-f="sonly" data-label="State only" aria-pressed="false">State only (6)</button>
-  <button class="filt fc" data-f="conly" data-label="City only" aria-pressed="false">City only (53)</button>
+  <button class="filt fb" data-f="both">Both</button>
+  <button class="filt fs" data-f="sonly">State only</button>
+  <button class="filt fc" data-f="conly">City only</button>
   <div class="spacer"></div>
   <input type="search" id="q" placeholder="Search equipment…">
-  <button class="act" id="publish" disabled="">Publishing…</button>
+  <button class="act" id="publish">Publish to site</button>
   <button class="act ghost" id="foldall">Collapse all</button>
-  <button class="act" id="edit">Done editing</button>
+  <button class="act ghost" id="edit">Edit list</button>
   <button class="act" id="xlsx">Download Excel</button>
   <button class="act" id="formbtn">Download checklist form</button>
   <button class="act ghost" id="pdf">Save as PDF</button>
@@ -351,284 +274,17 @@ window.addEventListener('unhandledrejection', function(e){
   <label class="excl"><input type="checkbox" id="onlychk"> PDF: only what I checked</label>
   <button class="act ghost" id="clear">Clear checks</button>
   <button class="act ghost" id="revert">Reset to original</button>
-  <span class="count" id="count">109 shown</span>
+  <span class="count" id="count"></span>
 </div>
 
-<p class="fmath" id="fmath">109 items = 6 state only + 50 required by both + 53 city only. "State" (56) and "City" (103) each include the 50 shared items.</p>
-<p class="savestate" id="savestate">Publishing…</p>
+<p class="fmath" id="fmath"></p>
+<p class="savestate" id="savestate"></p>
 
 
 <div id="list"></div>
 <div id="protocol" aria-hidden="true"></div>
-<div id="formdoc" aria-hidden="true"><div class="fm-unit">
-      <p class="fm-title">Hatzalah of Houston – BLS Ambulance Inventory Checklist</p>
-      <p class="fm-sub">Minimum equipment required by 25 TAC §157.11 (State of Texas)
-        and Houston Health Department Minimum Equipment for Ambulances Ver 9.16.25 (City of Houston).
-        Quantity shown is the higher of the two. <b>S</b> = state only, <b>C</b> = city only, <b>SC</b> = both.</p>
-      <div class="fm-id">
-        <span>Name ______________________________</span>
-        <span>Unit # __________</span>
-        <span>Inspection Date ______ / ______ / ______</span>
-      </div>
-      <div class="fm-cols"><div class="fm-blk"><table><thead><tr>
-        <th>Vehicle Requirements</th><th class="q">Qty</th>
-        <th class="c">Comments</th>
-      </tr></thead><tbody><tr><td>Current registration<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Name of service on both sides<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>No smoking signs in front and rear<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Front (cab)</td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Rear (patient compartment)</td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Tires in good condition<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Doors in acceptable condition<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>All items stored securely<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Dome lights<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Seat belts front / rear<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Emergency lights<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Siren<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Vehicle horn<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Vehicle lights<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Windshield free of obstructions<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Communication equipment<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Steps and body free of major damage<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Positive locks on cabinets and seats<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Free from electrical hazards<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Clean equipment patient area<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Environmental system — heating and cooling<span class="fm-src">S</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr></tbody></table></div><div class="fm-blk"><table><thead><tr>
-        <th>Documentation</th><th class="q">Qty</th>
-        <th class="c">Comments</th>
-      </tr></thead><tbody><tr><td>Current protocols signed by medical director<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Current TDSHS vehicle authorization<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Current proof of insurance<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>CoH ambulance service permit<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>CoH ambulance driver's permit<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Vehicle is listed on vehicle information page<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Equipment, supply and medication list available to crew<span class="fm-src">S</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr></tbody></table></div><div class="fm-blk"><table><thead><tr>
-        <th>Safety Equipment</th><th class="q">Qty</th>
-        <th class="c">Exp Date / Comments</th>
-      </tr></thead><tbody><tr><td>Emergency road triangles or non-flammable reflective devices<span class="fm-src">C</span></td>
-                <td class="q">3</td><td class="c">&nbsp;</td></tr><tr><td>Fire extinguisher- mounted, tagged, accessible from patient area<span class="fm-src">SC</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">5-lb ABC</td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Mounted</td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Tagged / currently inspected</td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Accessible from patient area</td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Flashlight with charger or extra batteries<span class="fm-src">SC</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Current HAZMAT ERG<span class="fm-src">SC</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Reflective vests<span class="fm-src">C</span></td>
-                <td class="q">2</td><td class="c">&nbsp;</td></tr><tr><td>Powered equipment: manual feature, spare batteries, or alternate power<span class="fm-src">S</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr></tbody></table></div><div class="fm-blk"><table><thead><tr>
-        <th>Transportation, Immobilization and Splinting</th><th class="q">Qty</th>
-        <th class="c">Comments</th>
-      </tr></thead><tbody><tr><td>KED or short board<span class="fm-src">SC</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Long spine board<span class="fm-src">SC</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Cervical collars infant- adult<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Infant</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Pediatric</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Adult</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td>Stretcher<span class="fm-src">SC</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Stair chair or mega mover<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Pediatric restraint System<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Extremity splint<span class="fm-src">SC</span></td>
-                <td class="q">2</td><td class="c">&nbsp;</td></tr><tr><td>Femoral (traction) splint<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Pelvis stabilizing device or material<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Equipment to meet special patient needs<span class="fm-src">S</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr></tbody></table></div><div class="fm-blk"><table><thead><tr>
-        <th>Oxygen &amp; Suction</th><th class="q">Qty</th>
-        <th class="c">Exp Date / Comments</th>
-      </tr></thead><tbody><tr><td>Mounted oxygen cylinder (&gt;200 psi)<span class="fm-src">SC</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Portable oxygen cylinder w/ regulator<span class="fm-src">SC</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Nasal cannula pediatric - adult<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Pediatric</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Adult</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td>Non-rebreather or simple face mask pediatric - adult<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Pediatric</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Adult</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td>BVM infant - adult<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Infant</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Child</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Adult</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td>OPA<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">40mm</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">60mm</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">80mm</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">90mm</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">100mm</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">110mm</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td>NPA<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">16fr or smaller</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">18fr-24fr</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">26fr or larger</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td>Mounted and Portable Suction w/ intact cannister<span class="fm-src">SC</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Mounted / wall unit</td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Portable unit</td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Intact cannister</td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Suction catheter<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">5 or 6</td>
-                <td class="q">1 ea.</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">8 or 10</td>
-                <td class="q">1 ea.</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">12 or 14</td>
-                <td class="q">1 ea.</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">16 or 18</td>
-                <td class="q">1 ea.</td><td class="c">&nbsp;</td></tr><tr><td>Rigid suction catheter<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr></tbody></table></div><div class="fm-blk"><table><thead><tr>
-        <th>Trauma &amp; Bandaging</th><th class="q">Qty</th>
-        <th class="c">Comments</th>
-      </tr></thead><tbody><tr><td>Commercial arterial tourniquet<span class="fm-src">SC</span></td>
-                <td class="q">2</td><td class="c">&nbsp;</td></tr><tr><td>4x4 sterile<span class="fm-src">SC</span></td>
-                <td class="q">25</td><td class="c">&nbsp;</td></tr><tr><td>4x4 non- sterile<span class="fm-src">C</span></td>
-                <td class="q">25</td><td class="c">&nbsp;</td></tr><tr><td>Adhesive bandage<span class="fm-src">SC</span></td>
-                <td class="q">1 bx</td><td class="c">&nbsp;</td></tr><tr><td>Adhesive tape<span class="fm-src">SC</span></td>
-                <td class="q">2</td><td class="c">&nbsp;</td></tr><tr><td>Occlusive dressing / chest seal<span class="fm-src">SC</span></td>
-                <td class="q">2</td><td class="c">&nbsp;</td></tr><tr><td>Fluid for irrigation of wounds<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Elastic (ACE) bandage<span class="fm-src">SC</span></td>
-                <td class="q">2</td><td class="c">&nbsp;</td></tr></tbody></table></div><div class="fm-blk"><table><thead><tr>
-        <th>Infection Control</th><th class="q">Qty</th>
-        <th class="c">Comments</th>
-      </tr></thead><tbody><tr><td>Hand cleaner / sanitizer<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Mounted sharps container<span class="fm-src">SC</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Emesis bag, basin, or bed pan<span class="fm-src">C</span></td>
-                <td class="q">2 ea</td><td class="c">&nbsp;</td></tr><tr><td>Biohazard bags<span class="fm-src">SC</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>General trash bags<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Disinfectant wipes or solution<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Examination gloves<span class="fm-src">SC</span></td>
-                <td class="q">1 bx.</td><td class="c">&nbsp;</td></tr><tr><td>Eye protection<span class="fm-src">SC</span></td>
-                <td class="q">2</td><td class="c">&nbsp;</td></tr><tr><td>Gowns<span class="fm-src">SC</span></td>
-                <td class="q">2</td><td class="c">&nbsp;</td></tr><tr><td>Surgical masks<span class="fm-src">C</span></td>
-                <td class="q">2</td><td class="c">&nbsp;</td></tr><tr><td>N95 masks<span class="fm-src">SC</span></td>
-                <td class="q">2</td><td class="c">&nbsp;</td></tr><tr><td>Personal cleansing supplies<span class="fm-src">S</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr></tbody></table></div><div class="fm-blk"><table><thead><tr>
-        <th>Vitals &amp; Diagnostics</th><th class="q">Qty</th>
-        <th class="c">Exp Date / Comments</th>
-      </tr></thead><tbody><tr><td>Glucometer w/ test strips &amp; disposable lancets<span class="fm-src">SC</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Oral glucose<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Pulse oximeter with pediatric - adult capabilities<span class="fm-src">SC</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Stethoscope<span class="fm-src">SC</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Blood pressure cuffs infant - adult<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Infant</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Child</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Adult</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td>Thermometer (w/ covers if oral)<span class="fm-src">SC</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Thermometer</td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Covers (if oral)</td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr></tbody></table></div><div class="fm-blk"><table><thead><tr>
-        <th>Miscellaneous</th><th class="q">Qty</th>
-        <th class="c">Comments</th>
-      </tr></thead><tbody><tr><td>Trauma shears<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Triage marking system or 10 tags<span class="fm-src">SC</span></td>
-                <td class="q">25</td><td class="c">&nbsp;</td></tr><tr><td>Cold pack<span class="fm-src">C</span></td>
-                <td class="q">2</td><td class="c">&nbsp;</td></tr><tr><td>Heat pack<span class="fm-src">C</span></td>
-                <td class="q">2</td><td class="c">&nbsp;</td></tr><tr><td>Emergency blanket<span class="fm-src">C</span></td>
-                <td class="q">2</td><td class="c">&nbsp;</td></tr><tr><td>Alcohol swabs or topical antiseptic towelettes<span class="fm-src">C</span></td>
-                <td class="q">20</td><td class="c">&nbsp;</td></tr><tr><td>Pediatric dosing<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>OB Kit w/ baby bunting and bulb suction<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr></tbody></table></div><div class="fm-blk"><table><thead><tr>
-        <th>Cardiovascular Care</th><th class="q">Qty</th>
-        <th class="c">Exp Date / Comments</th>
-      </tr></thead><tbody><tr><td>AED w/ no errors<span class="fm-src">SC</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Spare battery<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Adult &amp; Pediatric defibrillator pads<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Adult — set 1</td>
-                <td class="q">2ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Adult — set 2</td>
-                <td class="q">2ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Pediatric — set 1</td>
-                <td class="q">2ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Pediatric — set 2</td>
-                <td class="q">2ea</td><td class="c">&nbsp;</td></tr></tbody></table></div><div class="fm-blk"><table><thead><tr>
-        <th>Medications</th><th class="q">Qty</th>
-        <th class="c">Exp Date / Comments</th>
-      </tr></thead><tbody><tr><td>Epinephrine for anaphylaxis w/ delivery capability<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Pediatric</td>
-                <td class="q">1ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Adult</td>
-                <td class="q">1ea</td><td class="c">&nbsp;</td></tr><tr><td>Filter needles if using ampule<span class="fm-src">C</span></td>
-                <td class="q">1ea</td><td class="c">&nbsp;</td></tr><tr><td>Naloxone w/ appropriate delivery system<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Other medications per protocols w/ appropriate delivery devices<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Pediatric and neonatal equipment per endorsed national standards<span class="fm-src">S</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr></tbody></table></div></div>
-      <div class="fm-sign">
-        Inspected by: _______________________________________________ &nbsp;&nbsp; DATE: ____________________<br>
-        Lars Thestrup, MD: __________________________________________ &nbsp;&nbsp; DATE: ____________________
-      </div>
-      <p class="fm-foot">Generated 7/15/2026 from the current State + City requirements.</p>
-    </div><div class="fm-unit">
-      <p class="fm-title">Hatzalah of Houston – ALS Ambulance Inventory Checklist</p>
-      <p class="fm-sub">Minimum equipment required by 25 TAC §157.11 (State of Texas)
-        and Houston Health Department Minimum Equipment for Ambulances Ver 9.16.25 (City of Houston).
-        Quantity shown is the higher of the two. <b>S</b> = state only, <b>C</b> = city only, <b>SC</b> = both.</p>
-      <div class="fm-id">
-        <span>Name ______________________________</span>
-        <span>Unit # __________</span>
-        <span>Inspection Date ______ / ______ / ______</span>
-      </div>
-      <div class="fm-cols"><div class="fm-blk"><table><thead><tr>
-        <th>Intubation &amp; Airways</th><th class="q">Qty</th>
-        <th class="c">Exp Date / Comments</th>
-      </tr></thead><tbody><tr><td>Magill forceps<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Supraglottic airway devices infant - adult<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Infant</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Child</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Adult</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td>Chest decompression needle 14g x 1.5" or greater or other commercially available size<span class="fm-src">C</span></td>
-                <td class="q">2</td><td class="c">&nbsp;</td></tr><tr><td>Continuous waveform capnography<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Laryngoscope handle &amp; blades<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Handle</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Blade 0</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Blade 1</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Blade 2</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Blade 3</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Blade 4</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td>ET tubes 3.0- 8.0<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">3.0</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">3.5</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">4.0</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">4.5</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">5.0</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">5.5</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">6.0</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">6.5</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">7.0</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">7.5</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">8.0</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr></tbody></table></div><div class="fm-blk"><table><thead><tr>
-        <th>Medication Delivery &amp; Vascular Access</th><th class="q">Qty</th>
-        <th class="c">Exp Date / Comments</th>
-      </tr></thead><tbody><tr><td>Isotonic crystalloid fluids per protocol<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Administration tubing<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Macro drip</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Micro drip</td>
-                <td class="q">1 ea</td><td class="c">&nbsp;</td></tr><tr><td>Other medications per protocols w/ appropriate delivery devices<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr></tbody></table></div></div>
-      <div class="fm-sign">
-        Inspected by: _______________________________________________ &nbsp;&nbsp; DATE: ____________________<br>
-        Lars Thestrup, MD: __________________________________________ &nbsp;&nbsp; DATE: ____________________
-      </div>
-      <p class="fm-foot">Generated 7/15/2026 from the current State + City requirements.</p>
-    </div><div class="fm-unit">
-      <p class="fm-title">Hatzalah of Houston – MICU Ambulance Inventory Checklist</p>
-      <p class="fm-sub">Minimum equipment required by 25 TAC §157.11 (State of Texas)
-        and Houston Health Department Minimum Equipment for Ambulances Ver 9.16.25 (City of Houston).
-        Quantity shown is the higher of the two. <b>S</b> = state only, <b>C</b> = city only, <b>SC</b> = both.</p>
-      <div class="fm-id">
-        <span>Name ______________________________</span>
-        <span>Unit # __________</span>
-        <span>Inspection Date ______ / ______ / ______</span>
-      </div>
-      <div class="fm-cols"><div class="fm-blk"><table><thead><tr>
-        <th>MICU equipment &amp; medications</th><th class="q">Qty</th>
-        <th class="c">Exp Date / Comments</th>
-      </tr></thead><tbody><tr><td>Cardiac monitor w/ ECG acquisition and trans-cutaneous pacing<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">ECG acquisition</td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Trans-cutaneous pacing</td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td class="fm-sub-item">Transmitting 12-lead (state)</td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Extra batteries for monitor<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Extra paper<span class="fm-src">C</span></td>
-                <td class="q">1</td><td class="c">&nbsp;</td></tr><tr><td>Electrodes<span class="fm-src">C</span></td>
-                <td class="q">1 set</td><td class="c">&nbsp;</td></tr><tr><td>Specialized equipment per protocols<span class="fm-src">C</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr><tr><td>Other medications per protocol w/ appropriate delivery devices<span class="fm-src">SC</span></td>
-                <td class="q"></td><td class="c">&nbsp;</td></tr></tbody></table></div></div>
-      <div class="fm-sign">
-        Inspected by: _______________________________________________ &nbsp;&nbsp; DATE: ____________________<br>
-        Lars Thestrup, MD: __________________________________________ &nbsp;&nbsp; DATE: ____________________
-      </div>
-      <p class="fm-foot">Generated 7/15/2026 from the current State + City requirements.</p>
-    </div></div>
-<script id="saved-state" type="application/json">{"savedAt":"7/15/2026, 8:07:43 PM","t":1784164063147,"rows":[{"id":1,"tier":"bls","cat":"Vehicle Requirements","name":"Current registration","qty":"1","src":"c","note":"","ours":"Current Vehicle Inspection Sticker","have":false,"notes":"","added":false,"subs":[]},{"id":2,"tier":"bls","cat":"Vehicle Requirements","name":"Name of service on both sides","qty":"—","src":"sc","note":"State §157.11(e)(7): min 2-inch contrasting lettering, plus \"TX\" + license number","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":3,"tier":"bls","cat":"Vehicle Requirements","name":"No smoking signs in front and rear","qty":"—","src":"sc","note":"","ours":"No-Smoking Signs (1 Cab & 1 Patient Area)","have":false,"notes":"","added":false,"subs":[{"label":"Front (cab)","have":false},{"label":"Rear (patient compartment)","have":false}]},{"id":4,"tier":"bls","cat":"Vehicle Requirements","name":"Tires in good condition","qty":"—","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":5,"tier":"bls","cat":"Vehicle Requirements","name":"Doors in acceptable condition","qty":"—","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":6,"tier":"bls","cat":"Vehicle Requirements","name":"All items stored securely","qty":"—","src":"sc","note":"State §157.11(j)(2): secured at time of patient care","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":7,"tier":"bls","cat":"Vehicle Requirements","name":"Dome lights","qty":"—","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":8,"tier":"bls","cat":"Vehicle Requirements","name":"Seat belts front / rear","qty":"—","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":9,"tier":"bls","cat":"Vehicle Requirements","name":"Emergency lights","qty":"—","src":"sc","note":"State §157.11(k)(8)(B): operable emergency warning devices","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":10,"tier":"bls","cat":"Vehicle Requirements","name":"Siren","qty":"—","src":"sc","note":"State §157.11(k)(8)(B): operable emergency warning devices","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":11,"tier":"bls","cat":"Vehicle Requirements","name":"Vehicle horn","qty":"—","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":12,"tier":"bls","cat":"Vehicle Requirements","name":"Vehicle lights","qty":"—","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":13,"tier":"bls","cat":"Vehicle Requirements","name":"Windshield free of obstructions","qty":"—","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":14,"tier":"bls","cat":"Vehicle Requirements","name":"Communication equipment","qty":"—","src":"sc","note":"State §157.11(e)(5): capable of contacting appropriate medical resources","ours":"Radio (1)","have":false,"notes":"","added":false,"subs":[]},{"id":15,"tier":"bls","cat":"Vehicle Requirements","name":"Steps and body free of major damage","qty":"—","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":16,"tier":"bls","cat":"Vehicle Requirements","name":"Positive locks on cabinets and seats","qty":"—","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":17,"tier":"bls","cat":"Vehicle Requirements","name":"Free from electrical hazards","qty":"—","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":18,"tier":"bls","cat":"Vehicle Requirements","name":"Clean equipment patient area","qty":"—","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":19,"tier":"bls","cat":"Vehicle Requirements","name":"Environmental system — heating and cooling","qty":"—","src":"s","note":"NOT ON HHD SHEET. State §157.11(e)(4): must protect medications per manufacturer spec","ours":"Air Conditioner/Heater","have":false,"notes":"","added":false,"subs":[]},{"id":20,"tier":"bls","cat":"Documentation","name":"Current protocols signed by medical director","qty":"—","src":"sc","note":"","ours":"Medical Treatment Guidelines signed by MD (1)","have":false,"notes":"","added":false,"subs":[]},{"id":21,"tier":"bls","cat":"Documentation","name":"Current TDSHS vehicle authorization","qty":"—","src":"sc","note":"State: original, correct level, displayed in patient compartment","ours":"Current TDSHS License","have":false,"notes":"","added":false,"subs":[]},{"id":22,"tier":"bls","cat":"Documentation","name":"Current proof of insurance","qty":"—","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":23,"tier":"bls","cat":"Documentation","name":"CoH ambulance service permit","qty":"—","src":"c","note":"","ours":"City of Houston Permit (1)","have":false,"notes":"","added":false,"subs":[]},{"id":24,"tier":"bls","cat":"Documentation","name":"CoH ambulance driver's permit","qty":"—","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":25,"tier":"bls","cat":"Documentation","name":"Vehicle is listed on vehicle information page","qty":"—","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":26,"tier":"bls","cat":"Documentation","name":"Equipment, supply and medication list available to crew","qty":"—","src":"s","note":"NOT ON HHD SHEET. State §157.11(k)(8)(A): current and complete","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":27,"tier":"bls","cat":"Safety Equipment","name":"Emergency road triangles or non-flammable reflective devices","qty":"3","src":"c","note":"","ours":"Emergency Reflective Triangle (3)","have":false,"notes":"","added":false,"subs":[]},{"id":28,"tier":"bls","cat":"Safety Equipment","name":"Fire extinguisher- mounted, tagged, accessible from patient area","qty":"1","src":"sc","note":"State §157.11(k)(8)(G) adds: 5-pound ABC, currently inspected","ours":"Fire Extinguisher Mounted and Tagged (1)","have":false,"notes":"","added":false,"subs":[{"label":"5-lb ABC","have":false},{"label":"Mounted","have":false},{"label":"Tagged / currently inspected","have":false},{"label":"Accessible from patient area","have":false}]},{"id":29,"tier":"bls","cat":"Safety Equipment","name":"Flashlight with charger or extra batteries","qty":"1","src":"sc","note":"State: portable, battery-powered — a pen-light does not satisfy","ours":"Flashlight (1)","have":false,"notes":"","added":false,"subs":[]},{"id":30,"tier":"bls","cat":"Safety Equipment","name":"Current HAZMAT ERG","qty":"1","src":"sc","note":"Both require the CURRENT edition — ERG 2024 is current, next due 2028. Electronic version acceptable to state.","ours":"ERG, 2016 or newer (1) — two editions stale","have":false,"notes":"","added":false,"subs":[]},{"id":31,"tier":"bls","cat":"Safety Equipment","name":"Reflective vests","qty":"2","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":32,"tier":"bls","cat":"Safety Equipment","name":"Powered equipment: manual feature, spare batteries, or alternate power","qty":"—","src":"s","note":"NOT ON HHD SHEET. State §157.11(j)(2): applies to every powered patient-care device","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":33,"tier":"bls","cat":"Transportation, Immobilization and Splinting","name":"KED or short board","qty":"1","src":"sc","note":"","ours":"Extrication Device (KED) (1)","have":false,"notes":"","added":false,"subs":[]},{"id":34,"tier":"bls","cat":"Transportation, Immobilization and Splinting","name":"Long spine board","qty":"1","src":"sc","note":"State §157.11(k)(1)(J): spinal immobilization device","ours":"Backboard (long) w/ Tape (1)","have":false,"notes":"","added":false,"subs":[]},{"id":35,"tier":"bls","cat":"Transportation, Immobilization and Splinting","name":"Cervical collars infant- adult","qty":"1 ea","src":"sc","note":"State: rigid cervical immobilization device","ours":"Adult (2), Pediatric (2)","have":false,"notes":"","added":false,"subs":[{"label":"Infant","have":false},{"label":"Pediatric","have":false},{"label":"Adult","have":false}]},{"id":36,"tier":"bls","cat":"Transportation, Immobilization and Splinting","name":"Stretcher","qty":"1","src":"sc","note":"State: patient fully restrained per manufacturer recommendation","ours":"Multi-Level Stretcher (1)","have":false,"notes":"","added":false,"subs":[]},{"id":37,"tier":"bls","cat":"Transportation, Immobilization and Splinting","name":"Stair chair or mega mover","qty":"1","src":"c","note":"","ours":"Stair Chair (1)","have":false,"notes":"","added":false,"subs":[]},{"id":38,"tier":"bls","cat":"Transportation, Immobilization and Splinting","name":"Pediatric restraint System","qty":"1","src":"c","note":"","ours":"Car Seat or Equivalent (1)","have":false,"notes":"","added":false,"subs":[]},{"id":39,"tier":"bls","cat":"Transportation, Immobilization and Splinting","name":"Extremity splint","qty":"2","src":"sc","note":"","ours":"Splint Pack or 2 short / 2 med / 2 long","have":false,"notes":"","added":false,"subs":[]},{"id":40,"tier":"bls","cat":"Transportation, Immobilization and Splinting","name":"Femoral (traction) splint","qty":"1","src":"c","note":"","ours":"Traction Splint for Adult & Child (1)","have":false,"notes":"","added":false,"subs":[]},{"id":41,"tier":"bls","cat":"Transportation, Immobilization and Splinting","name":"Pelvis stabilizing device or material","qty":"1","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":42,"tier":"bls","cat":"Transportation, Immobilization and Splinting","name":"Equipment to meet special patient needs","qty":"—","src":"s","note":"NOT ON HHD SHEET. State §157.11(k)(1)(L): defined by your medical director","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":43,"tier":"bls","cat":"Oxygen & Suction","name":"Mounted oxygen cylinder (>200 psi)","qty":"1","src":"sc","note":"","ours":"\"H\" Cylinder w/ Regulator (1)","have":false,"notes":"","added":false,"subs":[]},{"id":44,"tier":"bls","cat":"Oxygen & Suction","name":"Portable oxygen cylinder w/ regulator","qty":"1","src":"sc","note":"","ours":"\"D\" Cylinder (2) + \"D\" Regulator (1)","have":false,"notes":"","added":false,"subs":[]},{"id":45,"tier":"bls","cat":"Oxygen & Suction","name":"Nasal cannula pediatric - adult","qty":"1 ea","src":"sc","note":"","ours":"Adult (2), Pediatric (2)","have":false,"notes":"","added":false,"subs":[{"label":"Pediatric","have":false},{"label":"Adult","have":false}]},{"id":46,"tier":"bls","cat":"Oxygen & Suction","name":"Non-rebreather or simple face mask pediatric - adult","qty":"1 ea","src":"sc","note":"","ours":"NRB Adult (2), NRB Child (2)","have":false,"notes":"","added":false,"subs":[{"label":"Pediatric","have":false},{"label":"Adult","have":false}]},{"id":47,"tier":"bls","cat":"Oxygen & Suction","name":"BVM infant - adult","qty":"1 ea","src":"sc","note":"State: bag valve mask units, oxygen capable","ours":"Adult (1), Child (1), Infant w/ neonatal mask (1)","have":false,"notes":"","added":false,"subs":[{"label":"Infant","have":false},{"label":"Child","have":false},{"label":"Adult","have":false}]},{"id":48,"tier":"bls","cat":"Oxygen & Suction","name":"OPA (40mm, 60mm, 80mm, 90mm, 100mm, &110mm)","qty":"1 ea","src":"sc","note":"","ours":"Adult (2), Child (2), Infant (2)","have":false,"notes":"","added":false,"subs":[{"label":"40mm","have":false},{"label":"60mm","have":false},{"label":"80mm","have":false},{"label":"90mm","have":false},{"label":"100mm","have":false},{"label":"110mm","have":false}]},{"id":49,"tier":"bls","cat":"Oxygen & Suction","name":"NPA (16fr or smaller, 18fr-24fr, & 26fr or larger)","qty":"1 ea","src":"c","note":"","ours":"Multiple Sizes (2)","have":false,"notes":"","added":false,"subs":[{"label":"16fr or smaller","have":false},{"label":"18fr-24fr","have":false},{"label":"26fr or larger","have":false}]},{"id":50,"tier":"bls","cat":"Oxygen & Suction","name":"Mounted and Portable Suction w/ intact cannister","qty":"1","src":"sc","note":"","ours":"Wall Mount (1), Portable (1), Spare Canister (1)","have":false,"notes":"","added":false,"subs":[{"label":"Mounted / wall unit","have":false},{"label":"Portable unit","have":false},{"label":"Intact cannister","have":false}]},{"id":51,"tier":"bls","cat":"Oxygen & Suction","name":"Suction catheter (5 or 6, 8 or 10, 12 or 14, 16 or 18)","qty":"1 ea.","src":"c","note":"","ours":"Multiple Sizes","have":false,"notes":"","added":false,"subs":[{"label":"5 or 6","have":false},{"label":"8 or 10","have":false},{"label":"12 or 14","have":false},{"label":"16 or 18","have":false}]},{"id":52,"tier":"bls","cat":"Oxygen & Suction","name":"Rigid suction catheter","qty":"1","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":53,"tier":"bls","cat":"Trauma & Bandaging","name":"Commercial arterial tourniquet","qty":"2","src":"sc","note":"","ours":"Tourniquet (2)","have":false,"notes":"","added":false,"subs":[]},{"id":54,"tier":"bls","cat":"Trauma & Bandaging","name":"4x4 sterile","qty":"25","src":"sc","note":"","ours":"Dressing, 4x4, Sterile (8)","have":false,"notes":"","added":false,"subs":[]},{"id":55,"tier":"bls","cat":"Trauma & Bandaging","name":"4x4 non- sterile","qty":"25","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":56,"tier":"bls","cat":"Trauma & Bandaging","name":"Adhesive bandage","qty":"1 bx","src":"sc","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":57,"tier":"bls","cat":"Trauma & Bandaging","name":"Adhesive tape","qty":"2","src":"sc","note":"","ours":"Tape, Adhesive (2)","have":false,"notes":"","added":false,"subs":[]},{"id":58,"tier":"bls","cat":"Trauma & Bandaging","name":"Occlusive dressing / chest seal","qty":"2","src":"sc","note":"","ours":"Chest Seal (2), Dressing Occlusive (1)","have":false,"notes":"","added":false,"subs":[]},{"id":59,"tier":"bls","cat":"Trauma & Bandaging","name":"Fluid for irrigation of wounds","qty":"1","src":"c","note":"","ours":"Sterile Saline or Water Bottle (1)","have":false,"notes":"","added":false,"subs":[]},{"id":60,"tier":"bls","cat":"Trauma & Bandaging","name":"Elastic (ACE) bandage","qty":"2","src":"sc","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":61,"tier":"bls","cat":"Infection Control","name":"Hand cleaner / sanitizer","qty":"1","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":62,"tier":"bls","cat":"Infection Control","name":"Mounted sharps container","qty":"1","src":"sc","note":"","ours":"Sharps Container (1)","have":false,"notes":"","added":false,"subs":[]},{"id":63,"tier":"bls","cat":"Infection Control","name":"Emesis bag, basin, or bed pan","qty":"2 ea","src":"c","note":"","ours":"Disposable Bed Pan (1)","have":false,"notes":"","added":false,"subs":[]},{"id":64,"tier":"bls","cat":"Infection Control","name":"Biohazard bags","qty":"1","src":"sc","note":"","ours":"Bio-Hazard Bag (2)","have":false,"notes":"","added":false,"subs":[]},{"id":65,"tier":"bls","cat":"Infection Control","name":"General trash bags","qty":"1","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":66,"tier":"bls","cat":"Infection Control","name":"Disinfectant wipes or solution","qty":"1","src":"c","note":"","ours":"Disinfectant/Cleaner (1)","have":false,"notes":"","added":false,"subs":[]},{"id":67,"tier":"bls","cat":"Infection Control","name":"Examination gloves","qty":"1 bx.","src":"sc","note":"State: protective, non-porous","ours":"1 box each XL, Lg, Med","have":false,"notes":"","added":false,"subs":[]},{"id":68,"tier":"bls","cat":"Infection Control","name":"Eye protection","qty":"2","src":"sc","note":"","ours":"Eyewear, Protective (2)","have":false,"notes":"","added":false,"subs":[]},{"id":69,"tier":"bls","cat":"Infection Control","name":"Gowns","qty":"2","src":"sc","note":"State: medical protective gowns or equivalent","ours":"Gown, Protective (2)","have":false,"notes":"","added":false,"subs":[]},{"id":70,"tier":"bls","cat":"Infection Control","name":"Surgical masks","qty":"2","src":"c","note":"","ours":"Masks, Protective (2)","have":false,"notes":"","added":false,"subs":[]},{"id":71,"tier":"bls","cat":"Infection Control","name":"N95 masks","qty":"2","src":"sc","note":"State §157.11(k)(8)(C)(iii) is stricter: one per crew member. Carry the greater of 2 or crew size.","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":72,"tier":"bls","cat":"Infection Control","name":"Personal cleansing supplies","qty":"—","src":"s","note":"NOT ON HHD SHEET. State §157.11(k)(8)(C)(v)","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":73,"tier":"bls","cat":"Vitals & Diagnostics","name":"Glucometer w/ test strips & disposable lancets","qty":"1","src":"sc","note":"","ours":"Blood Glucometer Kit (1)","have":false,"notes":"","added":false,"subs":[]},{"id":74,"tier":"bls","cat":"Vitals & Diagnostics","name":"Oral glucose","qty":"1","src":"c","note":"","ours":"Glucose, Oral (1)","have":false,"notes":"","added":false,"subs":[]},{"id":75,"tier":"bls","cat":"Vitals & Diagnostics","name":"Pulse oximeter with pediatric - adult capabilities","qty":"1","src":"sc","note":"","ours":"Pulse Oximeter (1)","have":false,"notes":"","added":false,"subs":[]},{"id":76,"tier":"bls","cat":"Vitals & Diagnostics","name":"Stethoscope","qty":"1","src":"sc","note":"","ours":"Stethoscope (1)","have":false,"notes":"","added":false,"subs":[]},{"id":77,"tier":"bls","cat":"Vitals & Diagnostics","name":"Blood pressure cuffs infant - adult","qty":"1 ea","src":"sc","note":"","ours":"Adult (1), Child (1)","have":false,"notes":"","added":false,"subs":[{"label":"Infant","have":false},{"label":"Child","have":false},{"label":"Adult","have":false}]},{"id":78,"tier":"bls","cat":"Vitals & Diagnostics","name":"Thermometer (w/ covers if oral)","qty":"1","src":"sc","note":"","ours":"Thermometer (1) + Probes (2)","have":false,"notes":"","added":false,"subs":[{"label":"Thermometer","have":false},{"label":"Covers (if oral)","have":false}]},{"id":79,"tier":"bls","cat":"Miscellaneous","name":"Trauma shears","qty":"1","src":"c","note":"","ours":"Trauma Shears (2)","have":false,"notes":"","added":false,"subs":[]},{"id":80,"tier":"bls","cat":"Miscellaneous","name":"Triage marking system or 10 tags","qty":"25","src":"sc","note":"MERGED: HHD sheet says 10 tags; state §157.11(k)(8)(J) requires 25 — or documented RAC triage plan participation","ours":"Disaster Tags (10)","have":false,"notes":"","added":false,"subs":[]},{"id":81,"tier":"bls","cat":"Miscellaneous","name":"Cold pack","qty":"2","src":"c","note":"","ours":"Cold Pack (2)","have":false,"notes":"","added":false,"subs":[]},{"id":82,"tier":"bls","cat":"Miscellaneous","name":"Heat pack","qty":"2","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":83,"tier":"bls","cat":"Miscellaneous","name":"Emergency blanket","qty":"2","src":"c","note":"","ours":"Blanket (2)","have":false,"notes":"","added":false,"subs":[]},{"id":84,"tier":"bls","cat":"Miscellaneous","name":"Alcohol swabs or topical antiseptic towelettes","qty":"20","src":"c","note":"","ours":"Alcohol Preps (10)","have":false,"notes":"","added":false,"subs":[]},{"id":85,"tier":"bls","cat":"Miscellaneous","name":"Pediatric dosing","qty":"1","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":86,"tier":"bls","cat":"Miscellaneous","name":"OB Kit w/ baby bunting and bulb suction","qty":"1","src":"c","note":"","ours":"O.B. Kit, Sterile (1)","have":false,"notes":"","added":false,"subs":[]},{"id":87,"tier":"bls","cat":"Cardiovascular Care","name":"AED w/ no errors","qty":"1","src":"sc","note":"State: external cardiac defibrillator appropriate to staffing level","ours":"AED (1)","have":false,"notes":"","added":false,"subs":[]},{"id":88,"tier":"bls","cat":"Cardiovascular Care","name":"Spare battery","qty":"1","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":89,"tier":"bls","cat":"Cardiovascular Care","name":"Adult & Pediatric defibrillator pads (compatible with AED)","qty":"2ea","src":"sc","note":"State §157.11(k)(1)(O): two sets adult AND two sets pediatric","ours":"AED Pads Adult (1), AED Pads Infant/Child (1)","have":false,"notes":"","added":false,"subs":[{"label":"Adult — set 1","have":false},{"label":"Adult — set 2","have":false},{"label":"Pediatric — set 1","have":false},{"label":"Pediatric — set 2","have":false}]},{"id":90,"tier":"bls","cat":"Medications","name":"Epinephrine for anaphylaxis w/ delivery capability (pediatric & adult)","qty":"1ea","src":"sc","note":"State §157.11(k)(1)(Q): auto injector or similar device","ours":"EpiPen Adult (1) + EpiPen Jr (1), or Certadose Kit","have":false,"notes":"","added":false,"subs":[{"label":"Pediatric","have":false},{"label":"Adult","have":false}]},{"id":91,"tier":"bls","cat":"Medications","name":"Filter needles if using ampule","qty":"1ea","src":"c","note":"","ours":"—","have":false,"notes":"","added":false,"subs":[]},{"id":92,"tier":"bls","cat":"Medications","name":"Naloxone w/ appropriate delivery system","qty":"1","src":"c","note":"","ours":"Naloxone Single Dose Spray (2)","have":false,"notes":"","added":false,"subs":[]},{"id":93,"tier":"bls","cat":"Medications","name":"Other medications per protocols w/ appropriate delivery devices","qty":"—","src":"sc","note":"State §157.11(k)(1)(N)","ours":"Albuterol (3), Nebulizers (4)","have":false,"notes":"","added":false,"subs":[]},{"id":94,"tier":"bls","cat":"Medications","name":"Pediatric and neonatal equipment per endorsed national standards","qty":"—","src":"s","note":"NOT A WHITE BOX — from the HHD sheet footnote and state §157.11(e)(1). Must sit inside the MD-approved list at every level.","ours":"Infant Insulating Device (1)","have":false,"notes":"","added":false,"subs":[]},{"id":95,"tier":"als","cat":"Intubation & Airways","name":"Magill forceps","qty":"1","src":"c","note":"","ours":"Adult (1), Pediatric (1)","have":false,"notes":"","added":false,"subs":[]},{"id":96,"tier":"als","cat":"Intubation & Airways","name":"Supraglottic airway devices infant - adult","qty":"1 ea","src":"sc","note":"State §157.11(k)(2)(C): advanced airway equipment","ours":"iGel Supraglottic Device (4 sizes)","have":false,"notes":"","added":false,"subs":[{"label":"Infant","have":false},{"label":"Child","have":false},{"label":"Adult","have":false}]},{"id":97,"tier":"als","cat":"Intubation & Airways","name":"Chest decompression needle 14g x 1.5\" or greater or other commercially available size","qty":"2","src":"c","note":"","ours":"Chest decompression needle (3 sizes)","have":false,"notes":"","added":false,"subs":[]},{"id":98,"tier":"als","cat":"Intubation & Airways","name":"Continuous waveform capnography","qty":"—","src":"sc","note":"State §157.11(k)(7): required when performing or monitoring ET intubation","ours":"ETCO₂ Filterline (1), ETCO₂ Nasal Cannula (1)","have":false,"notes":"","added":false,"subs":[]},{"id":99,"tier":"als","cat":"Intubation & Airways","name":"Laryngoscope handle & blades (size 0 -4)","qty":"1 ea","src":"c","note":"HHD sheet: under \"If not using supraglottic:\"","ours":"Handle (2), Blades Adult/Peds/Infant (1 ea), Spare Battery (2)","have":false,"notes":"","added":false,"subs":[{"label":"Handle","have":false},{"label":"Blade 0","have":false},{"label":"Blade 1","have":false},{"label":"Blade 2","have":false},{"label":"Blade 3","have":false},{"label":"Blade 4","have":false}]},{"id":100,"tier":"als","cat":"Intubation & Airways","name":"ET tubes 3.0- 8.0","qty":"1 ea","src":"c","note":"HHD sheet: under \"If not using supraglottic:\"","ours":"MICU: cuffed 6.0–9.0 (3), uncuffed 2.5–5.5 (3)","have":false,"notes":"","added":false,"subs":[{"label":"3.0","have":false},{"label":"3.5","have":false},{"label":"4.0","have":false},{"label":"4.5","have":false},{"label":"5.0","have":false},{"label":"5.5","have":false},{"label":"6.0","have":false},{"label":"6.5","have":false},{"label":"7.0","have":false},{"label":"7.5","have":false},{"label":"8.0","have":false}]},{"id":101,"tier":"als","cat":"Medication Delivery & Vascular Access","name":"Isotonic crystalloid fluids per protocol","qty":"—","src":"sc","note":"State §157.11(k)(2)(A)(v): IV initiation and maintenance of fluids","ours":"Sodium Chloride, IV Bag (2)","have":false,"notes":"","added":false,"subs":[]},{"id":102,"tier":"als","cat":"Medication Delivery & Vascular Access","name":"Administration tubing (macro & micro)","qty":"1 ea","src":"c","note":"","ours":"Micro Drip (1), Regular Macro Drip (1)","have":false,"notes":"","added":false,"subs":[{"label":"Macro drip","have":false},{"label":"Micro drip","have":false}]},{"id":103,"tier":"als","cat":"Medication Delivery & Vascular Access","name":"Other medications per protocols w/ appropriate delivery devices","qty":"—","src":"c","note":"","ours":"Aspirin 81mg (24), Ipratropium (3), Narcan 2mg (2)","have":false,"notes":"","added":false,"subs":[]},{"id":104,"tier":"micu","cat":"MICU equipment & medications","name":"Cardiac monitor w/ ECG acquisition and trans-cutaneous pacing","qty":"—","src":"sc","note":"State §157.11(k)(3)(C) adds: transmitting 12-lead capability","ours":"ECG Monitor/Defibrillator (1)","have":false,"notes":"","added":false,"subs":[{"label":"ECG acquisition","have":false},{"label":"Trans-cutaneous pacing","have":false},{"label":"Transmitting 12-lead (state)","have":false}]},{"id":105,"tier":"micu","cat":"MICU equipment & medications","name":"Extra batteries for monitor","qty":"1","src":"c","note":"","ours":"ECG Monitor Spare Battery (2)","have":false,"notes":"","added":false,"subs":[]},{"id":106,"tier":"micu","cat":"MICU equipment & medications","name":"Extra paper","qty":"1","src":"c","note":"","ours":"ECG Paper (1)","have":false,"notes":"","added":false,"subs":[]},{"id":107,"tier":"micu","cat":"MICU equipment & medications","name":"Electrodes","qty":"1 set","src":"c","note":"","ours":"ECG Electrode (10)","have":false,"notes":"","added":false,"subs":[]},{"id":108,"tier":"micu","cat":"MICU equipment & medications","name":"Specialized equipment per protocols","qty":"—","src":"c","note":"","ours":"Video Laryngoscope (1), EZ-IO (1)","have":false,"notes":"","added":false,"subs":[]},{"id":109,"tier":"micu","cat":"MICU equipment & medications","name":"Other medications per protocol w/ appropriate delivery devices","qty":"—","src":"sc","note":"State §157.11(k)(3)(D): pharmaceuticals as required by MD protocols","ours":"Full MICU drug box — see §9.03(C)","have":false,"notes":"","added":false,"subs":[]}]}</script>
+<div id="formdoc" aria-hidden="true"></div>
+<script id="saved-state" type="application/json">null</script>
 
 <footer>
   Build b18 · 2026-07-16 · <a href="#" id="resetauth">Sign out of this device</a> ·
@@ -1333,25 +989,48 @@ document.getElementById('foldall').addEventListener('click',()=>{
 const FM_TITLE = {bls:'BLS Ambulance Inventory Checklist',
                   als:'ALS Ambulance Inventory Checklist',
                   micu:'MICU Ambulance Inventory Checklist'};
-// categories whose contents expire
 const FM_EXP = new Set(['Medications','Oxygen & Suction','Cardiovascular Care','Vitals & Diagnostics',
                         'Medication Delivery & Vascular Access','MICU equipment & medications',
                         'Intubation & Airways','Safety Equipment']);
 
-function fmRows(r){
-  const out = [];
+// one line per item, exactly like the Hatzalah form
+function fmLine(r){
   const qty = (r.qty && r.qty !== '—') ? r.qty : '';
-  const src = `<span class="fm-src">${r.src.toUpperCase()}</span>`;
-  if (r.subs.length && SPLIT.has(r.name)){
-    out.push({txt: esc(base(r.name)) + src, qty: '', head: true});
-    for (const sx of r.subs) out.push({txt: esc(sx.label), qty, sub: true});
-  } else if (r.subs.length){
-    out.push({txt: esc(r.name) + src, qty});
-    for (const sx of r.subs) out.push({txt: esc(sx.label), qty: '', sub: true});
-  } else {
-    out.push({txt: esc(r.name) + src, qty});
+  return {name: esc(r.name), src: r.src.toUpperCase(), qty};
+}
+
+function fmBlocks(t){
+  const rows = MODEL.filter(r => r.tier === t);
+  const out = [];
+  for (const cat of new Set(rows.map(r=>r.cat))){
+    const items = rows.filter(r=>r.cat===cat).map(fmLine);
+    if (items.length) out.push({cat, items, exp: FM_EXP.has(cat)});
   }
   return out;
+}
+
+// balance blocks across two columns by line count, the way the Excel sheet does
+function fmSplit(blocks){
+  const cost = b => b.items.length + 2;
+  const total = blocks.reduce((n,b)=>n+cost(b), 0);
+  const left = [], right = [];
+  let acc = 0;
+  for (const b of blocks){
+    if (acc + cost(b)/2 <= total/2){ left.push(b); acc += cost(b); }
+    else right.push(b);
+  }
+  return [left, right];
+}
+
+function fmBlockHTML(b){
+  let h = `<table class="fm-blk"><thead><tr>
+    <th>${esc(b.cat)}</th><th class="q">Qty</th>
+    <th class="c">${b.exp ? 'Exp Date/Comments' : 'Comments'}</th>
+  </tr></thead><tbody>`;
+  for (const it of b.items)
+    h += `<tr><td>${it.name}<span class="fm-src">${it.src}</span></td>
+          <td class="q">${it.qty}</td><td class="c">&nbsp;</td></tr>`;
+  return h + `</tbody></table>`;
 }
 
 function buildForm(){
@@ -1359,38 +1038,20 @@ function buildForm(){
   const today = new Date().toLocaleDateString('en-US');
   let h = '';
   for (const t of tiers){
-    const rows = MODEL.filter(r => r.tier === t);
-    if (!rows.length) continue;
+    const blocks = fmBlocks(t);
+    if (!blocks.length) continue;
+    const [L, R] = fmSplit(blocks);
     h += `<div class="fm-unit">
       <p class="fm-title">Hatzalah of Houston &ndash; ${FM_TITLE[t]}</p>
-      <p class="fm-sub">Minimum equipment required by 25 TAC &sect;157.11 (State of Texas)
-        and Houston Health Department Minimum Equipment for Ambulances Ver 9.16.25 (City of Houston).
-        Quantity shown is the higher of the two. <b>S</b> = state only, <b>C</b> = city only, <b>SC</b> = both.</p>
-      <div class="fm-id">
-        <span>Name ______________________________</span>
-        <span>Unit # __________</span>
-        <span>Inspection Date ______ / ______ / ______</span>
-      </div>
-      <div class="fm-cols">`;
-    for (const cat of new Set(rows.map(r=>r.cat))){
-      const items = rows.filter(r=>r.cat===cat);
-      if (!items.length) continue;
-      h += `<div class="fm-blk"><table><thead><tr>
-        <th>${esc(cat)}</th><th class="q">Qty</th>
-        <th class="c">${FM_EXP.has(cat) ? 'Exp Date / Comments' : 'Comments'}</th>
-      </tr></thead><tbody>`;
-      for (const r of items)
-        for (const line of fmRows(r))
-          h += `<tr><td${line.sub ? ' class="fm-sub-item"' : ''}>${line.txt}</td>
-                <td class="q">${line.qty}</td><td class="c">&nbsp;</td></tr>`;
-      h += `</tbody></table></div>`;
-    }
-    h += `</div>
-      <div class="fm-sign">
-        Inspected by: _______________________________________________ &nbsp;&nbsp; DATE: ____________________<br>
-        Lars Thestrup, MD: __________________________________________ &nbsp;&nbsp; DATE: ____________________
-      </div>
-      <p class="fm-foot">Generated ${today} from the current State + City requirements.</p>
+      <p class="fm-id">Name______________________________&nbsp;&nbsp;Unit # __________&nbsp;&nbsp;Inspection Date _______/_______/_______</p>
+      <table class="fm-grid"><tr>
+        <td>${L.map(fmBlockHTML).join('')}</td>
+        <td>${R.map(fmBlockHTML).join('')}</td>
+      </tr></table>
+      <p class="fm-sign">Inspected by:__________________________________________________ DATE: __________________________<br>
+      Lars Thestrup, MD :_____________________________________________ DATE: __________________________</p>
+      <p class="fm-foot">State of Texas 25 TAC &sect;157.11 + City of Houston HHD Ver 9.16.25. Qty = higher of the two.
+        <b>S</b> state only &middot; <b>C</b> city only &middot; <b>SC</b> both. &nbsp; Generated ${today}</p>
     </div>`;
   }
   document.getElementById('formdoc').innerHTML = h;
@@ -1473,6 +1134,5 @@ render();
 if (loadNote && !document.getElementById('savestate').textContent)
   document.getElementById('savestate').textContent = loadNote;
 </script>
-
-
-</body></html>
+</body>
+</html>
